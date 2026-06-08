@@ -89,6 +89,35 @@ var scenarios = []*tax.ScenarioSet{
 					ExtKeyInvoiceTypeTransactions: "0200010",
 				}),
 			},
+			// Self-billed and associated credit/debit notes
+			{
+				Types: []cbc.Key{
+					bill.InvoiceTypeStandard,
+					bill.InvoiceTypeCreditNote,
+					bill.InvoiceTypeDebitNote,
+				},
+				Tags: []cbc.Key{
+					tax.TagSelfBilled,
+				},
+				Ext: tax.ExtensionsOf(cbc.CodeMap{
+					ExtKeyInvoiceTypeTransactions: "0100001",
+				}),
+			},
+			// Summary and self-billed and associated credit/debit notes.
+			{
+				Types: []cbc.Key{
+					bill.InvoiceTypeStandard,
+					bill.InvoiceTypeCreditNote,
+					bill.InvoiceTypeDebitNote,
+				},
+				Tags: []cbc.Key{
+					TagSummary,
+					tax.TagSelfBilled,
+				},
+				Ext: tax.ExtensionsOf(cbc.CodeMap{
+					ExtKeyInvoiceTypeTransactions: "0100011",
+				}),
+			},
 		},
 	},
 }
