@@ -4,9 +4,9 @@ package zatca
 
 import (
 	"github.com/invopop/gobl/addons/eu/en16931"
-	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/i18n"
+	"github.com/invopop/gobl/norm"
 	"github.com/invopop/gobl/pkg/here"
 	"github.com/invopop/gobl/rules"
 	"github.com/invopop/gobl/rules/is"
@@ -14,27 +14,37 @@ import (
 )
 
 const (
-	// V1 is the key for the ZATCA e-invoicing addon version 1.
-	V1 cbc.Key = "sa-zatca-v1"
+	// Namespace is the rules namespace for the Saudi Arabia ZATCA addon.
+	Namespace rules.Code = "SA-ZATCA"
+
+	// Key identifies the Saudi Arabia ZATCA addon family.
+	Key cbc.Key = "sa-zatca"
+
+	// V1 is the first version of the Saudi Arabia ZATCA addon.
+	V1 cbc.Key = Key + "-v1"
 
 	// StampQR is the base64-encoded TLV QR code carried by every ZATCA invoice.
 	StampQR cbc.Key = "zatca-qr"
 )
 
 func init() {
-	tax.RegisterAddonDef(newAddon())
+	tax.RegisterAddonDef(newV1Addon())
 	rules.RegisterWithGuard(
-		V1.String(),
-		rules.GOBL.Add("SA-ZATCA-V1"),
+		Key.String(),
+		rules.GOBL.Add(Namespace),
 		is.InContext(tax.AddonIn(V1)),
 		billInvoiceRules(),
 		billLineRules(),
 		orgAddressRules(),
 		taxComboRules(),
 	)
+	norm.RegisterWithGuard(
+		is.InContext(tax.AddonIn(V1)),
+		norm.For(normalizeInvoice),
+	)
 }
 
-func newAddon() *tax.AddonDef {
+func newV1Addon() *tax.AddonDef {
 	return &tax.AddonDef{
 		Key: V1,
 		Name: i18n.String{
@@ -66,13 +76,5 @@ func newAddon() *tax.AddonDef {
 		Extensions: extensions,
 		Tags:       tags,
 		Scenarios:  scenarios,
-		Normalizer: normalize,
-	}
-}
-
-func normalize(doc any) {
-	switch obj := doc.(type) {
-	case *bill.Invoice:
-		normalizeInvoice(obj)
 	}
 }

@@ -3,12 +3,12 @@ package zatca_test
 import (
 	"testing"
 
-	"github.com/invopop/gobl.sa.zatca/addon"
 	"github.com/invopop/gobl/addons/eu/en16931"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/norm"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/rules"
@@ -18,24 +18,22 @@ import (
 )
 
 func TestNormalizeInvoice(t *testing.T) {
-	ad := tax.AddonForKey(zatca.V1)
-
 	t.Run("nil invoice does not panic", func(t *testing.T) {
 		assert.NotPanics(t, func() {
-			ad.Normalizer((*bill.Invoice)(nil))
+			norm.Normalize((*bill.Invoice)(nil))
 		})
 	})
 
 	t.Run("sets rounding to currency", func(t *testing.T) {
 		inv := validStandardInvoice()
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		assert.Equal(t, tax.RoundingRuleCurrency, inv.Tax.Rounding)
 	})
 
 	t.Run("creates tax object when nil", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Tax = nil
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.NotNil(t, inv.Tax)
 		assert.Equal(t, tax.RoundingRuleCurrency, inv.Tax.Rounding)
 	})
@@ -43,7 +41,7 @@ func TestNormalizeInvoice(t *testing.T) {
 	t.Run("creates issue time when nil", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.IssueTime = nil
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.NotNil(t, inv.IssueTime)
 	})
 
@@ -60,14 +58,12 @@ func TestNormalizeInvoice(t *testing.T) {
 			},
 		}
 		assert.NotPanics(t, func() {
-			ad.Normalizer(inv)
+			norm.Normalize(inv)
 		})
 	})
 }
 
 func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
-	ad := tax.AddonForKey(zatca.V1)
-
 	t.Run("exempt line gets tax note", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Lines = []*bill.Line{
@@ -89,7 +85,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.Len(t, inv.Tax.Notes, 1)
 		n := inv.Tax.Notes[0]
 		assert.Equal(t, tax.CategoryVAT, n.Category)
@@ -119,7 +115,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.Len(t, inv.Tax.Notes, 1)
 		n := inv.Tax.Notes[0]
 		assert.Equal(t, tax.CategoryVAT, n.Category)
@@ -149,7 +145,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.Len(t, inv.Tax.Notes, 1)
 		n := inv.Tax.Notes[0]
 		assert.Equal(t, tax.CategoryVAT, n.Category)
@@ -160,7 +156,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 
 	t.Run("standard VAT line does not add note", func(t *testing.T) {
 		inv := validStandardInvoice()
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		assert.Empty(t, inv.Tax.Notes)
 	})
 
@@ -195,7 +191,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		assert.Len(t, inv.Tax.Notes, 1)
 		assert.Equal(t, "Existing exemption note", inv.Tax.Notes[0].Text)
 	})
@@ -224,7 +220,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.Len(t, inv.Tax.Notes, 2)
 		assert.Nil(t, inv.Tax.Notes[0])
 		assert.Equal(t, "Financial services mentioned in Article 29 of the VAT Regulations", inv.Tax.Notes[1].Text)
@@ -251,7 +247,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		assert.Empty(t, inv.Tax.Notes)
 	})
 
@@ -293,7 +289,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 				},
 			},
 		}
-		ad.Normalizer(inv)
+		norm.Normalize(inv)
 		require.Len(t, inv.Tax.Notes, 2)
 		assert.Equal(t, en16931.TaxCategoryExempt, inv.Tax.Notes[0].Ext.Get(untdid.ExtKeyTaxCategory))
 		assert.Equal(t, en16931.TaxCategoryZero, inv.Tax.Notes[1].Ext.Get(untdid.ExtKeyTaxCategory))

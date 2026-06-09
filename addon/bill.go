@@ -34,10 +34,6 @@ var taxExemptionReason = map[cbc.Code]string{
 }
 
 func normalizeInvoice(inv *bill.Invoice) {
-	if inv == nil {
-		return
-	}
-
 	// Ensure Tax object exists
 	if inv.Tax == nil {
 		inv.Tax = &bill.Tax{}
