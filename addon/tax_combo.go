@@ -34,6 +34,10 @@ const (
 func taxComboRules() *rules.Set {
 	return rules.For(new(tax.Combo),
 
+		// ZATCA requires that UNTDID tax category Z carries a VATEX exemption
+		// code, which conflicts with EN16931 BR-S-10/BR-Z-10.
+		rules.Ignore("GOBL-EU-EN16931-TAX-COMBO-07"),
+
 		// Extensions
 		rules.Field("ext",
 			rules.Assert("01", "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard (BR-KSA-CL-04)",
