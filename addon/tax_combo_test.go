@@ -110,9 +110,41 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 
-	// NOTE: zero-rated (Z) + VATEX combinations cannot currently be tested at
-	// the invoice level because EN16931 rule 07 (BR-S-10/BR-Z-10) prohibits
-	// any VATEX on Z-rated lines and runs first. See ISSUE TRACKER #18.
+	t.Run("zero-rated with valid VATEX-SA-32 (export goods) is valid", func(t *testing.T) {
+		inv := invoiceWithTaxCombo(&tax.Combo{
+			Category: tax.CategoryVAT,
+			Key:      tax.KeyZero,
+			Ext: tax.ExtensionsOf(cbc.CodeMap{
+				cef.ExtKeyVATEX: zatca.VatexExportGoods,
+			}),
+		})
+		require.NoError(t, inv.Calculate())
+		require.NoError(t, rules.Validate(inv))
+	})
+
+	t.Run("zero-rated without VATEX fails", func(t *testing.T) {
+		inv := invoiceWithTaxCombo(&tax.Combo{
+			Category: tax.CategoryVAT,
+			Key:      tax.KeyZero,
+		})
+		require.NoError(t, inv.Calculate())
+		err := rules.Validate(inv)
+		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+	})
+
+	t.Run("zero-rated with VATEX from another category (VATEX-SA-29 belongs to E) fails", func(t *testing.T) {
+		inv := invoiceWithTaxCombo(&tax.Combo{
+			Category: tax.CategoryVAT,
+			Key:      tax.KeyZero,
+			Ext: tax.ExtensionsOf(cbc.CodeMap{
+				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+			}),
+		})
+		require.NoError(t, inv.Calculate())
+		err := rules.Validate(inv)
+		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard",
+			"VATEX-SA-29 belongs to category E, must not be accepted on zero-rated (Z)")
+	})
 }
 
 // --- Rule 02 (BR-KSA-CL-04): standard rate must NOT have a VATEX code ---
