@@ -24,16 +24,30 @@ func normalizeInvoice(inv *bill.Invoice) {
 		inv.IssueTime = &cal.Time{}
 	}
 
+	normalizeInvoiceType(inv)
 	normalizeTaxNotes(inv)
+}
+
+// normalizeInvoiceType derives the ZATCA invoice transaction type from the invoice tags.
+func normalizeInvoiceType(inv *bill.Invoice) {
+	if inv.Tax.GetExt(ExtKeyInvoiceTypeTransactions) != cbc.CodeEmpty {
+		return
+	}
+	it := invoiceType{
+		Simplified: inv.HasTags(tax.TagSimplified),
+		ThirdParty: inv.HasTags(TagThirdParty),
+		Nominal:    inv.HasTags(TagNominal),
+		Export:     inv.HasTags(tax.TagExport),
+		Summary:    inv.HasTags(TagSummary),
+		SelfBilled: inv.HasTags(tax.TagSelfBilled),
+	}
+	inv.Tax.Ext = inv.Tax.Ext.Set(ExtKeyInvoiceTypeTransactions, it.Code())
 }
 
 // BR-KSA-83
 // VAT categories E,Z,O must have an associated tax note. This
 // validation adds them if not previously provided by the user
 func normalizeTaxNotes(inv *bill.Invoice) {
-	// The VATEX exemption reasons are defined by the CEF catalogue extension,
-	// so the human-readable note text is read from there rather than maintained
-	// as a separate map.
 	vatex := tax.ExtensionForKey(cef.ExtKeyVATEX)
 	if vatex == nil {
 		return

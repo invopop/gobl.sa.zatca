@@ -352,7 +352,7 @@ func TestSupplierTaxIDRequired(t *testing.T) {
 		inv.Supplier.TaxID = nil
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "supplier must have a tax ID code")
+		assert.ErrorContains(t, err, "supplier must have a tax ID (BR-KSA-39)")
 	})
 
 	t.Run("supplier with empty tax ID code fails", func(t *testing.T) {
@@ -911,6 +911,50 @@ func TestAllValidTransactionTypes(t *testing.T) {
 }
 
 // ============================================================================
+// Group I.2 — normalizeInvoiceType derives KSA-2 from tags (replaces the
+//             per-combination scenarios). third-party and nominal had no
+//             scenario before and are now handled by the normalizer.
+// ============================================================================
+
+func TestNormalizeInvoiceTypeFromTags(t *testing.T) {
+	cases := []struct {
+		name string
+		tags []cbc.Key
+		want cbc.Code
+	}{
+		{"standard default", nil, "0100000"},
+		{"summary", []cbc.Key{zatca.TagSummary}, "0100010"},
+		{"export", []cbc.Key{tax.TagExport}, "0100100"},
+		{"self-billed", []cbc.Key{tax.TagSelfBilled}, "0100001"},
+		{"third-party", []cbc.Key{zatca.TagThirdParty}, "0110000"},
+		{"nominal", []cbc.Key{zatca.TagNominal}, "0101000"},
+		{"third-party+nominal", []cbc.Key{zatca.TagThirdParty, zatca.TagNominal}, "0111000"},
+		{"simplified", []cbc.Key{tax.TagSimplified}, "0200000"},
+		{"simplified+summary", []cbc.Key{tax.TagSimplified, zatca.TagSummary}, "0200010"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			inv := validStandardInvoice()
+			if len(tc.tags) > 0 {
+				inv.SetTags(tc.tags...)
+			}
+			require.NoError(t, inv.Calculate())
+			assert.Equal(t, tc.want, inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions))
+		})
+	}
+
+	t.Run("explicitly set code is not overwritten", func(t *testing.T) {
+		inv := validStandardInvoice()
+		inv.Type = bill.InvoiceTypeOther
+		inv.Tax.Ext = inv.Tax.Ext.
+			Set(untdid.ExtKeyDocumentType, "388").
+			Set(zatca.ExtKeyInvoiceTypeTransactions, "0100001")
+		require.NoError(t, inv.Calculate())
+		assert.Equal(t, cbc.Code("0100001"), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions))
+	})
+}
+
+// ============================================================================
 // Group J — Rules 27-28: Self-billed invoices require customer tax ID and
 //                        a valid supplier-style identity
 //                        (BR-KSA-39, BR-KSA-08)
@@ -926,7 +970,7 @@ func TestSelfBilledCustomerTaxIDRequired(t *testing.T) {
 		inv.Customer.TaxID = nil
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer must have a tax ID code")
+			"customer must have a tax ID when self-billed")
 	})
 
 	t.Run("customer with empty tax ID code fails (BR-KSA-39)", func(t *testing.T) {

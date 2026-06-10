@@ -71,7 +71,7 @@ Declare the addon on a document (or let the regime/scenario add it) and
 
 | Key | Description |
 | --- | --- |
-| `sa-zatca-invoice-type` | ZATCA invoice subtype code (KSA-2): a 7-character `TTXNESO` string encoding the main type (`01` standard / `02` simplified) plus binary flags for third-party, nominal, export, summary and self-billed transactions. |
+| `sa-zatca-invoice-type` | ZATCA invoice transaction type (KSA-2): a 7-character `TTXNESO` string encoding the main type (`01` standard / `02` simplified) plus binary flags for third-party, nominal, export, summary and self-billed transactions. |
 
 VATEX exemption reasons reuse GOBL core's CEF catalogue extension
 (`cef-vatex`), which already defines the `VATEX-SA-*` codes. The addon

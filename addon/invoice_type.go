@@ -5,7 +5,7 @@ import (
 	"github.com/invopop/gobl/cbc"
 )
 
-// InvTypeCodeLen is the length of the ZATCA invoice type code (KSA-2), a
+// InvTypeCodeLen is the length of the ZATCA invoice transaction type (KSA-2), a
 // 7-character string of the form TTXNESO:
 //   - TT (0-1): main type (01 = Standard, 02 = Simplified)
 //   - X  (2):   third-party transaction
@@ -18,7 +18,7 @@ const InvTypeCodeLen = 7
 // invTypeCodePattern is the regular expression every KSA-2 code must match.
 const invTypeCodePattern = `^0[12][01]{5}$`
 
-// invoiceType is a parsed ZATCA KSA-2 invoice type code (TTXNESO). Keeping the
+// invoiceType is a parsed ZATCA invoice transaction type (KSA-2, TTXNESO). Keeping the
 // flags in a single typed value lets the rules run readable boolean checks
 // instead of repeatedly re-fetching the code and indexing magic byte offsets.
 type invoiceType struct {
@@ -67,8 +67,22 @@ func invoiceTypeOf(val any) invoiceType {
 	return parseInvoiceType(inv.Tax.GetExt(ExtKeyInvoiceTypeTransactions))
 }
 
+// Code renders the invoice transaction type back into its 7-character KSA-2 code.
+func (t invoiceType) Code() cbc.Code {
+	b := []byte("0100000")
+	if t.Simplified {
+		b[1] = '2'
+	}
+	for _, f := range invTypeFlags {
+		if *f.get(&t) {
+			b[f.pos] = '1'
+		}
+	}
+	return cbc.Code(b)
+}
+
 // validTransactionTypes lists every valid KSA-2 code (BR-KSA-06). The invoice
-// type extension definition is the single source of truth.
+// transaction type extension definition is the single source of truth.
 var validTransactionTypes = func() []cbc.Code {
 	def := cbc.GetKeyDefinition(ExtKeyInvoiceTypeTransactions, extensions)
 	codes := make([]cbc.Code, len(def.Values))

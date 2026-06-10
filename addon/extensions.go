@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	// ExtKeyInvoiceTypeTransactions identifies the ZATCA invoice subtype code (KSA-2).
+	// ExtKeyInvoiceTypeTransactions identifies the ZATCA invoice transaction type (KSA-2).
 	ExtKeyInvoiceTypeTransactions cbc.Key = "sa-zatca-invoice-type"
 )
 
@@ -15,12 +15,12 @@ var extensions = []*cbc.Definition{
 	{
 		Key: ExtKeyInvoiceTypeTransactions,
 		Name: i18n.String{
-			i18n.EN: "ZATCA Invoice Type",
+			i18n.EN: "ZATCA Invoice Transaction Type",
 			i18n.AR: "نوع الفاتورة",
 		},
 		Desc: i18n.String{
 			i18n.EN: here.Doc(`
-				Code used to describe the ZATCA invoice subtype and transaction flags (KSA-2).
+				Code used to describe the ZATCA invoice transaction type and flags (KSA-2).
 				The code is a 7-character string where positions 1-2 indicate the main type
 				(01 = Standard Tax Invoice, 02 = Simplified Tax Invoice) and positions 3-7
 				are binary flags for third-party, nominal, export, summary, and self-billed

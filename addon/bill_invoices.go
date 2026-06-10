@@ -88,7 +88,7 @@ func billInvoiceRules() *rules.Set {
 
 		// Credit or debit note
 		rules.When(
-			is.Func("credit or debit note", invoiceIsCreditOrDebitNote),
+			is.Expr("string(Type) in ['credit-note', 'debit-note']"),
 			rules.Field("preceding",
 				rules.Assert("07", "credit and debit notes must have a billing reference", is.Present),
 				rules.Each(
@@ -200,11 +200,14 @@ func billInvoiceRules() *rules.Set {
 
 		// Supplier
 		rules.Field("supplier",
-			rules.Assert("25", "supplier must have a tax ID code (BR-KSA-39)",
-				is.Func("valid VAT code", hasTaxIDCode),
+			rules.Field("tax_id",
+				rules.Assert("25", "supplier must have a tax ID (BR-KSA-39)", is.Present),
+				rules.Field("code",
+					rules.Assert("26", "supplier must have a tax ID code (BR-KSA-39)", is.Present),
+				),
 			),
 			rules.Field("identities",
-				rules.Assert("26", "supplier must have a valid identity (BR-KSA-08)",
+				rules.Assert("27", "supplier must have a valid identity (BR-KSA-08)",
 					is.Func("identity must be one of: CRN/MOM/MLS/700/SAG/OTH", hasOneSupplierIdentity),
 				),
 			),
@@ -214,11 +217,14 @@ func billInvoiceRules() *rules.Set {
 		rules.When(
 			is.Func("invoice is self-billed", invoiceIsSelfBilled),
 			rules.Field("customer",
-				rules.Assert("27", "customer must have a tax ID code (BR-KSA-39)",
-					is.Func("valid VAT code", hasTaxIDCode),
+				rules.Field("tax_id",
+					rules.Assert("28", "customer must have a tax ID when self-billed (BR-KSA-39)", is.Present),
+					rules.Field("code",
+						rules.Assert("29", "customer must have a tax ID code when self-billed (BR-KSA-39)", is.Present),
+					),
 				),
 				rules.Field("identities",
-					rules.Assert("28", "customer must have a valid identity (BR-KSA-08)",
+					rules.Assert("30", "customer must have a valid identity (BR-KSA-08)",
 						is.Func("identity must be one of: CRN/MOM/MLS/700/SAG/OTH", hasOneSupplierIdentity),
 					),
 				),
@@ -251,16 +257,6 @@ func invoiceIsSimplifiedAndEDUOrHEAExemption(val any) bool {
 func invoiceHasEDUOrHEAExemption(val any) bool {
 	// VATEX-SA-EDU (private education), VATEX-SA-HEA (private healthcare).
 	return invoiceHasExemption(val, []cbc.Code{"VATEX-SA-EDU", "VATEX-SA-HEA"})
-}
-
-func invoiceIsCreditOrDebitNote(val any) bool {
-	inv, ok := val.(*bill.Invoice)
-	return ok && inv != nil && (inv.Type == bill.InvoiceTypeCreditNote || inv.Type == bill.InvoiceTypeDebitNote)
-}
-
-func hasTaxIDCode(value any) bool {
-	party, _ := value.(*org.Party)
-	return party != nil && party.TaxID != nil && party.TaxID.Code != ""
 }
 
 func hasOneSupplierIdentity(value any) bool {
