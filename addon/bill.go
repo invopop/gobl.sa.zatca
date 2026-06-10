@@ -30,7 +30,7 @@ func normalizeInvoice(inv *bill.Invoice) {
 
 // normalizeInvoiceType derives the ZATCA invoice transaction type from the invoice tags.
 func normalizeInvoiceType(inv *bill.Invoice) {
-	if inv.Tax.GetExt(ExtKeyInvoiceTypeTransactions) != cbc.CodeEmpty {
+	if inv.Tax.GetExt(ExtKeyInvoiceType) != cbc.CodeEmpty {
 		return
 	}
 	it := invoiceType{
@@ -41,7 +41,7 @@ func normalizeInvoiceType(inv *bill.Invoice) {
 		Summary:    inv.HasTags(TagSummary),
 		SelfBilled: inv.HasTags(tax.TagSelfBilled),
 	}
-	inv.Tax.Ext = inv.Tax.Ext.Set(ExtKeyInvoiceTypeTransactions, it.Code())
+	inv.Tax.Ext = inv.Tax.Ext.Set(ExtKeyInvoiceType, it.Code())
 }
 
 // BR-KSA-83

@@ -8,12 +8,12 @@ import (
 
 const (
 	// ExtKeyInvoiceTypeTransactions identifies the ZATCA invoice transaction type (KSA-2).
-	ExtKeyInvoiceTypeTransactions cbc.Key = "sa-zatca-invoice-type"
+	ExtKeyInvoiceType cbc.Key = "sa-zatca-invoice-type"
 )
 
 var extensions = []*cbc.Definition{
 	{
-		Key: ExtKeyInvoiceTypeTransactions,
+		Key: ExtKeyInvoiceType,
 		Name: i18n.String{
 			i18n.EN: "ZATCA Invoice Transaction Type",
 			i18n.AR: "نوع الفاتورة",

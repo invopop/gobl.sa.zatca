@@ -64,7 +64,7 @@ func invoiceTypeOf(val any) invoiceType {
 	if !ok || inv == nil || inv.Tax == nil {
 		return invoiceType{}
 	}
-	return parseInvoiceType(inv.Tax.GetExt(ExtKeyInvoiceTypeTransactions))
+	return parseInvoiceType(inv.Tax.GetExt(ExtKeyInvoiceType))
 }
 
 // Code renders the invoice transaction type back into its 7-character KSA-2 code.
@@ -84,7 +84,7 @@ func (t invoiceType) Code() cbc.Code {
 // validTransactionTypes lists every valid KSA-2 code (BR-KSA-06). The invoice
 // transaction type extension definition is the single source of truth.
 var validTransactionTypes = func() []cbc.Code {
-	def := cbc.GetKeyDefinition(ExtKeyInvoiceTypeTransactions, extensions)
+	def := cbc.GetKeyDefinition(ExtKeyInvoiceType, extensions)
 	codes := make([]cbc.Code, len(def.Values))
 	for i, v := range def.Values {
 		codes[i] = v.Code

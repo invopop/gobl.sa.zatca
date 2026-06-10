@@ -181,7 +181,7 @@ func validSelfBilledInvoice() *bill.Invoice {
 	inv.Type = bill.InvoiceTypeOther
 	inv.Tax.Ext = inv.Tax.Ext.
 		Set(untdid.ExtKeyDocumentType, "388").
-		Set(zatca.ExtKeyInvoiceTypeTransactions, "0100001")
+		Set(zatca.ExtKeyInvoiceType, "0100001")
 	inv.Customer.Identities = []*org.Identity{
 		{Type: "CRN", Code: "1234567890"},
 	}
@@ -260,7 +260,7 @@ func TestTaxBlockExtensions(t *testing.T) {
 
 	t.Run("missing invoice transaction type ext key", func(t *testing.T) {
 		inv := calculated(t, validStandardInvoice())
-		inv.Tax.Ext = inv.Tax.Ext.Delete(zatca.ExtKeyInvoiceTypeTransactions)
+		inv.Tax.Ext = inv.Tax.Ext.Delete(zatca.ExtKeyInvoiceType)
 		assert.ErrorContains(t, rules.Validate(inv),
 			"invoice transaction type extension is required")
 	})
@@ -270,7 +270,7 @@ func TestTaxBlockExtensions(t *testing.T) {
 		inv.Type = bill.InvoiceTypeOther
 		inv.Tax.Ext = inv.Tax.Ext.
 			Set(untdid.ExtKeyDocumentType, "388").
-			Set(zatca.ExtKeyInvoiceTypeTransactions, "9999999")
+			Set(zatca.ExtKeyInvoiceType, "9999999")
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
 			"invoice transaction type must be valid")
@@ -777,7 +777,7 @@ func assertSACodeViaScenario(t *testing.T, expected cbc.Code, tags ...cbc.Key) {
 	}
 	require.NoError(t, inv.Calculate())
 	require.NoError(t, rules.Validate(inv))
-	assert.Equal(t, expected, inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions))
+	assert.Equal(t, expected, inv.Tax.Ext.Get(zatca.ExtKeyInvoiceType))
 }
 
 // assertSACodeHardCoded builds an "other"-typed invoice — which bypasses
@@ -798,7 +798,7 @@ func assertSACodeHardCoded(t *testing.T, code cbc.Code) {
 	}
 	inv.Tax.Ext = inv.Tax.Ext.
 		Set(untdid.ExtKeyDocumentType, "388").
-		Set(zatca.ExtKeyInvoiceTypeTransactions, code)
+		Set(zatca.ExtKeyInvoiceType, code)
 	require.NoError(t, inv.Calculate())
 	require.NoError(t, rules.Validate(inv))
 }
@@ -939,7 +939,7 @@ func TestNormalizeInvoiceTypeFromTags(t *testing.T) {
 				inv.SetTags(tc.tags...)
 			}
 			require.NoError(t, inv.Calculate())
-			assert.Equal(t, tc.want, inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions))
+			assert.Equal(t, tc.want, inv.Tax.Ext.Get(zatca.ExtKeyInvoiceType))
 		})
 	}
 
@@ -948,9 +948,9 @@ func TestNormalizeInvoiceTypeFromTags(t *testing.T) {
 		inv.Type = bill.InvoiceTypeOther
 		inv.Tax.Ext = inv.Tax.Ext.
 			Set(untdid.ExtKeyDocumentType, "388").
-			Set(zatca.ExtKeyInvoiceTypeTransactions, "0100001")
+			Set(zatca.ExtKeyInvoiceType, "0100001")
 		require.NoError(t, inv.Calculate())
-		assert.Equal(t, cbc.Code("0100001"), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions))
+		assert.Equal(t, cbc.Code("0100001"), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceType))
 	})
 }
 
@@ -1079,6 +1079,6 @@ func TestSelfBilledRuleDoesNotApplyWhenBitUnset(t *testing.T) {
 		require.NoError(t, inv.Calculate())
 		require.NoError(t, rules.Validate(inv))
 		// Sanity: KSA-2 self-billed bit is unset.
-		assert.NotEqual(t, byte('1'), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceTypeTransactions).String()[6])
+		assert.NotEqual(t, byte('1'), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceType).String()[6])
 	})
 }
