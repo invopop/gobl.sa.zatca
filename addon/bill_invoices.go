@@ -227,56 +227,35 @@ func billInvoiceRules() *rules.Set {
 	)
 }
 
-func getInvTypeCode(val any) string {
-	inv, ok := val.(*bill.Invoice)
-	if !ok || inv == nil {
-		return ""
-	}
-	if inv.Tax == nil {
-		return ""
-	}
-	code := inv.Tax.GetExt(ExtKeyInvoiceTypeTransactions).String()
-	if len(code) != InvTypeCodeLen {
-		return ""
-	}
-	return code
-}
-
 func invoiceIsStandard(val any) bool {
-	code := getInvTypeCode(val)
-	return code != "" && code[:2] == "01"
+	return !invoiceTypeOf(val).Simplified
 }
 
 func invoiceIsExport(val any) bool {
-	code := getInvTypeCode(val)
-	return code != "" && code[4] == '1'
-}
-
-func invoiceIsSummary(val any) bool {
-	code := getInvTypeCode(val)
-	return code != "" && code[5] == '1'
+	return invoiceTypeOf(val).Export
 }
 
 func invoiceIsSelfBilled(val any) bool {
-	code := getInvTypeCode(val)
-	return code != "" && code[6] == '1'
+	return invoiceTypeOf(val).SelfBilled
 }
 
 func invoiceIsSimplifiedAndSummary(val any) bool {
-	return invoiceIsSummary(val) && !invoiceIsStandard(val)
+	t := invoiceTypeOf(val)
+	return t.Simplified && t.Summary
+}
+
+func invoiceIsSimplifiedAndEDUOrHEAExemption(val any) bool {
+	return invoiceTypeOf(val).Simplified && invoiceHasEDUOrHEAExemption(val)
+}
+
+func invoiceHasEDUOrHEAExemption(val any) bool {
+	// VATEX-SA-EDU (private education), VATEX-SA-HEA (private healthcare).
+	return invoiceHasExemption(val, []cbc.Code{"VATEX-SA-EDU", "VATEX-SA-HEA"})
 }
 
 func invoiceIsCreditOrDebitNote(val any) bool {
 	inv, ok := val.(*bill.Invoice)
 	return ok && inv != nil && (inv.Type == bill.InvoiceTypeCreditNote || inv.Type == bill.InvoiceTypeDebitNote)
-}
-
-func invoiceHasEDUOrHEAExemption(val any) bool {
-	return invoiceHasExemption(val, []cbc.Code{VatexPrivateEducation, VatexPrivateHealthcare})
-}
-
-func invoiceIsSimplifiedAndEDUOrHEAExemption(val any) bool {
-	return invoiceHasEDUOrHEAExemption(val) && !invoiceIsStandard(val)
 }
 
 func hasTaxIDCode(value any) bool {

@@ -6,32 +6,9 @@ import (
 	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/i18n"
 	"github.com/invopop/gobl/tax"
 )
-
-var taxExemptionReason = map[cbc.Code]string{
-	// Category E — Exempt from VAT
-	"VATEX-SA-29":   "Financial services mentioned in Article 29 of the VAT Regulations",
-	"VATEX-SA-29-7": "Life insurance services mentioned in Article 29 of the VAT Regulations",
-	"VATEX-SA-30":   "Real estate transactions mentioned in Article 30 of the VAT Regulations",
-
-	// Category Z — Zero rated goods
-	"VATEX-SA-32":    "Export of goods",
-	"VATEX-SA-33":    "Export of services",
-	"VATEX-SA-34-1":  "The international transport of Goods",
-	"VATEX-SA-34-2":  "International transport of passengers",
-	"VATEX-SA-34-3":  "Services directly connected and incidental to a Supply of international passenger transport",
-	"VATEX-SA-34-4":  "Supply of a qualifying means of transport",
-	"VATEX-SA-34-5":  "Any services relating to Goods or passenger transportation, as defined in article twenty five of these Regulations",
-	"VATEX-SA-35":    "Medicines and medical equipment",
-	"VATEX-SA-36":    "Qualifying metals",
-	"VATEX-SA-EDU":   "Private education to citizen",
-	"VATEX-SA-HEA":   "Private healthcare to citizen",
-	"VATEX-SA-MLTRY": "Supply of qualified military goods",
-
-	// Category O — Not subject to VAT
-	"VATEX-SA-OOS": "Reason is free text, to be provided by the taxpayer on case to case basis",
-}
 
 func normalizeInvoice(inv *bill.Invoice) {
 	// Ensure Tax object exists
@@ -54,6 +31,13 @@ func normalizeInvoice(inv *bill.Invoice) {
 // VAT categories E,Z,O must have an associated tax note. This
 // validation adds them if not previously provided by the user
 func normalizeTaxNotes(inv *bill.Invoice) {
+	// The VATEX exemption reasons are defined by the CEF catalogue extension,
+	// so the human-readable note text is read from there rather than maintained
+	// as a separate map.
+	vatex := tax.ExtensionForKey(cef.ExtKeyVATEX)
+	if vatex == nil {
+		return
+	}
 	for _, line := range inv.Lines {
 		vat := line.Taxes.Get(tax.CategoryVAT)
 		if vat == nil {
@@ -63,8 +47,8 @@ func normalizeTaxNotes(inv *bill.Invoice) {
 		if ec == cbc.CodeEmpty {
 			continue
 		}
-		reason, ok := taxExemptionReason[ec]
-		if !ok {
+		def := vatex.CodeDef(ec)
+		if def == nil {
 			continue
 		}
 		untdidCat := vat.Ext.Get(untdid.ExtKeyTaxCategory)
@@ -74,7 +58,7 @@ func normalizeTaxNotes(inv *bill.Invoice) {
 		inv.Tax = inv.Tax.MergeNotes(&tax.Note{
 			Category: tax.CategoryVAT,
 			Key:      vat.Key,
-			Text:     reason,
+			Text:     def.Name.In(i18n.EN),
 			Ext:      tax.ExtensionsOf(cbc.CodeMap{untdid.ExtKeyTaxCategory: untdidCat}),
 		})
 	}

@@ -1,6 +1,7 @@
 package zatca_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/invopop/gobl/addons/eu/en16931"
@@ -8,6 +9,7 @@ import (
 	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/i18n"
 	"github.com/invopop/gobl/norm"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/org"
@@ -150,7 +152,7 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 		n := inv.Tax.Notes[0]
 		assert.Equal(t, tax.CategoryVAT, n.Category)
 		assert.Equal(t, tax.KeyOutsideScope, n.Key)
-		assert.Equal(t, "Reason is free text, to be provided by the taxpayer on case to case basis", n.Text)
+		assert.Equal(t, "Reason is free text, to be provided by the taxpayer on a case-by-case basis", n.Text)
 		assert.Equal(t, en16931.TaxCategoryOutsideScope, n.Ext.Get(untdid.ExtKeyTaxCategory))
 	})
 
@@ -294,6 +296,54 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 		assert.Equal(t, en16931.TaxCategoryExempt, inv.Tax.Notes[0].Ext.Get(untdid.ExtKeyTaxCategory))
 		assert.Equal(t, en16931.TaxCategoryZero, inv.Tax.Notes[1].Ext.Get(untdid.ExtKeyTaxCategory))
 	})
+}
+
+// TestNormalizeTaxNotesFromCEF verifies that, for every ZATCA VATEX-SA
+// exemption code, an invoice line carrying that code but no user-provided tax
+// note is automatically given one whose text is sourced from the CEF VATEX
+// extension definition. This guards against re-introducing a locally
+// maintained code->reason map that could drift from the catalogue.
+func TestNormalizeTaxNotesFromCEF(t *testing.T) {
+	vatex := tax.ExtensionForKey(cef.ExtKeyVATEX)
+	require.NotNil(t, vatex)
+
+	var saCodes int
+	for _, def := range vatex.Values {
+		if !strings.HasPrefix(def.Code.String(), "VATEX-SA") {
+			continue
+		}
+		saCodes++
+		t.Run(def.Code.String(), func(t *testing.T) {
+			inv := validStandardInvoice()
+			inv.Tax = &bill.Tax{} // no user-provided notes
+			inv.Lines = []*bill.Line{
+				{
+					Quantity: num.MakeAmount(1, 0),
+					Item: &org.Item{
+						Name:  "Exempt item",
+						Price: num.NewAmount(100, 0),
+					},
+					Taxes: tax.Set{
+						{
+							Category: tax.CategoryVAT,
+							Key:      tax.KeyExempt,
+							Ext: tax.ExtensionsOf(cbc.CodeMap{
+								cef.ExtKeyVATEX:          def.Code,
+								untdid.ExtKeyTaxCategory: en16931.TaxCategoryExempt,
+							}),
+						},
+					},
+				},
+			}
+			norm.Normalize(inv)
+
+			want := def.Name.In(i18n.EN)
+			require.NotEmpty(t, want, "CEF definition must provide an English name")
+			require.Len(t, inv.Tax.Notes, 1)
+			assert.Equal(t, want, inv.Tax.Notes[0].Text)
+		})
+	}
+	assert.Equal(t, 16, saCodes, "expected all ZATCA VATEX-SA codes to be exercised")
 }
 
 func TestBillDiscountRules(t *testing.T) {

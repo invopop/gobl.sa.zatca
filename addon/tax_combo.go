@@ -10,27 +10,6 @@ import (
 	"github.com/invopop/gobl/tax"
 )
 
-// SA VATEX exemption reason codes.
-// Used across the addon for rule validation.
-const (
-	VatexFinancialServices        cbc.Code = "VATEX-SA-29"
-	VatexLifeInsurance            cbc.Code = "VATEX-SA-29-7"
-	VatexRealEstate               cbc.Code = "VATEX-SA-30"
-	VatexExportGoods              cbc.Code = "VATEX-SA-32"
-	VatexExportServices           cbc.Code = "VATEX-SA-33"
-	VatexIntlTransportGoods       cbc.Code = "VATEX-SA-34-1"
-	VatexIntlTransportPassengers  cbc.Code = "VATEX-SA-34-2"
-	VatexIntlTransportRelated     cbc.Code = "VATEX-SA-34-3"
-	VatexQualifyingTransportMeans cbc.Code = "VATEX-SA-34-4"
-	VatexTransportRelated         cbc.Code = "VATEX-SA-34-5"
-	VatexMedicines                cbc.Code = "VATEX-SA-35"
-	VatexQualifyingMetals         cbc.Code = "VATEX-SA-36"
-	VatexPrivateEducation         cbc.Code = "VATEX-SA-EDU"
-	VatexPrivateHealthcare        cbc.Code = "VATEX-SA-HEA"
-	VatexMilitaryGoods            cbc.Code = "VATEX-SA-MLTRY"
-	VatexOutOfScope               cbc.Code = "VATEX-SA-OOS"
-)
-
 func taxComboRules() *rules.Set {
 	return rules.For(new(tax.Combo),
 
@@ -72,28 +51,30 @@ func taxComboHasValidVATEX(val any) bool {
 	case en16931.TaxCategoryStandard:
 		return vatex == cbc.CodeEmpty
 	case en16931.TaxCategoryExempt:
+		// Exempt from VAT.
 		return vatex.In(
-			VatexFinancialServices,
-			VatexLifeInsurance,
-			VatexRealEstate,
+			"VATEX-SA-29",
+			"VATEX-SA-29-7",
+			"VATEX-SA-30",
 		)
 	case en16931.TaxCategoryZero:
+		// Zero-rated.
 		return vatex.In(
-			VatexExportGoods,
-			VatexExportServices,
-			VatexIntlTransportGoods,
-			VatexIntlTransportPassengers,
-			VatexIntlTransportRelated,
-			VatexQualifyingTransportMeans,
-			VatexTransportRelated,
-			VatexMedicines,
-			VatexQualifyingMetals,
-			VatexPrivateEducation,
-			VatexPrivateHealthcare,
-			VatexMilitaryGoods,
+			"VATEX-SA-32",
+			"VATEX-SA-33",
+			"VATEX-SA-34-1",
+			"VATEX-SA-34-2",
+			"VATEX-SA-34-3",
+			"VATEX-SA-34-4",
+			"VATEX-SA-34-5",
+			"VATEX-SA-35",
+			"VATEX-SA-36",
+			"VATEX-SA-EDU",
+			"VATEX-SA-HEA",
+			"VATEX-SA-MLTRY",
 		)
 	case en16931.TaxCategoryOutsideScope:
-		return vatex == VatexOutOfScope
+		return vatex == "VATEX-SA-OOS"
 	default:
 		return true
 	}

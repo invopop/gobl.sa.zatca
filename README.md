@@ -26,6 +26,17 @@ Arabia ZATCA documents take on its weight.
 The Saudi Arabia tax regime itself (`regimes/sa`) continues to live in GOBL
 core; this module only carries the ZATCA addon.
 
+## Coverage
+
+ZATCA e-invoicing runs through the FATOORA platform and distinguishes two
+invoice families:
+
+- **Standard tax invoices** (B2B/B2G) — sent for clearance before issuance.
+- **Simplified tax invoices** (B2C) — sent for reporting after issuance.
+
+The addon covers both, along with their associated credit and debit notes and
+the export, summary, nominal, third-party and self-billed variants.
+
 ## Layout
 
 - `addon/` — the GOBL addon: extensions, normalizers, scenarios, and
@@ -56,6 +67,36 @@ Declare the addon on a document (or let the regime/scenario add it) and
 > registered` unless this module is imported. Any service that processes
 > Saudi Arabia ZATCA documents must import it.
 
+## Extensions
+
+| Key | Description |
+| --- | --- |
+| `sa-zatca-invoice-type` | ZATCA invoice subtype code (KSA-2): a 7-character `TTXNESO` string encoding the main type (`01` standard / `02` simplified) plus binary flags for third-party, nominal, export, summary and self-billed transactions. |
+
+VATEX exemption reasons reuse GOBL core's CEF catalogue extension
+(`cef-vatex`), which already defines the `VATEX-SA-*` codes. The addon
+validates them per VAT category and copies their description into the invoice
+tax notes (BR-KSA-83).
+
+## Tags
+
+Set on a `bill.Invoice` to drive the scenario that populates the KSA-2 code:
+
+| Tag | Meaning |
+| --- | --- |
+| `summary` | Summary invoice |
+| `third-party` | Third-party transaction |
+| `nominal` | Nominal supply transaction |
+| `export` | Export of goods (GOBL core `tax.TagExport`) |
+| `simplified` | Simplified tax invoice (GOBL core `tax.TagSimplified`) |
+| `self-billed` | Self-billed invoice (GOBL core `tax.TagSelfBilled`) |
+
+## Validation
+
+Rules register under the `SA-ZATCA` namespace, guarded so they apply only when
+`sa-zatca-v1` is active. Fault codes follow GOBL's structured format and the
+messages reference the underlying `BR-KSA-*` business rules.
+
 ## Development
 
 The addon builds on core GOBL features (the approved external-addon registry
@@ -79,6 +120,10 @@ changes with:
 ```sh
 go test . -run TestExamples -update
 ```
+
+## Sources
+
+- [ZATCA E-Invoicing Developer Portal](https://zatca.gov.sa/en/E-Invoicing/SystemsDevelopers/Pages/E-Invoice-specifications.aspx)
 
 ## License
 

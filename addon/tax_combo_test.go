@@ -3,7 +3,6 @@ package zatca_test
 import (
 	"testing"
 
-	"github.com/invopop/gobl.sa.zatca/addon"
 	"github.com/invopop/gobl/addons/eu/en16931"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/catalogues/cef"
@@ -32,7 +31,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -44,7 +43,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexRealEstate,
+				cef.ExtKeyVATEX: "VATEX-SA-30",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -66,7 +65,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexExportGoods,
+				cef.ExtKeyVATEX: "VATEX-SA-32",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -80,7 +79,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyOutsideScope,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexOutOfScope,
+				cef.ExtKeyVATEX: "VATEX-SA-OOS",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -102,7 +101,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyOutsideScope,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -115,7 +114,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyZero,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexExportGoods,
+				cef.ExtKeyVATEX: "VATEX-SA-32",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -137,7 +136,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyZero,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -164,7 +163,7 @@ func TestTaxComboRule02_StandardNoVATEX(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Rate:     tax.RateGeneral,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -195,7 +194,7 @@ func TestTaxComboRule03_ValidCategoryCodes(t *testing.T) {
 		assertValidCategory(t, &tax.Combo{
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
-			Ext:      tax.ExtensionsOf(cbc.CodeMap{cef.ExtKeyVATEX: zatca.VatexFinancialServices}),
+			Ext:      tax.ExtensionsOf(cbc.CodeMap{cef.ExtKeyVATEX: "VATEX-SA-29"}),
 		}, en16931.TaxCategoryExempt)
 	})
 
@@ -203,7 +202,7 @@ func TestTaxComboRule03_ValidCategoryCodes(t *testing.T) {
 		assertValidCategory(t, &tax.Combo{
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyOutsideScope,
-			Ext:      tax.ExtensionsOf(cbc.CodeMap{cef.ExtKeyVATEX: zatca.VatexOutOfScope}),
+			Ext:      tax.ExtensionsOf(cbc.CodeMap{cef.ExtKeyVATEX: "VATEX-SA-OOS"}),
 		}, en16931.TaxCategoryOutsideScope)
 	})
 
@@ -215,7 +214,7 @@ func TestTaxComboRule03_ValidCategoryCodes(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -262,7 +261,7 @@ func TestTaxComboRule01_UnrecognizedCategoryPassesVATEX(t *testing.T) {
 			Category: tax.CategoryVAT,
 			Key:      tax.KeyExempt,
 			Ext: tax.ExtensionsOf(cbc.CodeMap{
-				cef.ExtKeyVATEX: zatca.VatexFinancialServices,
+				cef.ExtKeyVATEX: "VATEX-SA-29",
 			}),
 		})
 		require.NoError(t, inv.Calculate())
@@ -305,16 +304,16 @@ func TestTaxComboVATEX_PerCategoryRestrictions(t *testing.T) {
 		vatex   cbc.Code
 		wantErr bool
 	}{
-		{"E+Vatex29 (financial) ok", tax.KeyExempt, zatca.VatexFinancialServices, false},
-		{"E+Vatex29_7 (life insurance) ok", tax.KeyExempt, zatca.VatexLifeInsurance, false},
-		{"E+Vatex30 (real estate) ok", tax.KeyExempt, zatca.VatexRealEstate, false},
-		{"E+Vatex32 (Z code) rejected", tax.KeyExempt, zatca.VatexExportGoods, true},
-		{"E+VatexEdu (Z code) rejected", tax.KeyExempt, zatca.VatexPrivateEducation, true},
-		{"E+VatexOutOfScope (O code) rejected", tax.KeyExempt, zatca.VatexOutOfScope, true},
+		{"E+Vatex29 (financial) ok", tax.KeyExempt, "VATEX-SA-29", false},
+		{"E+Vatex29_7 (life insurance) ok", tax.KeyExempt, "VATEX-SA-29-7", false},
+		{"E+Vatex30 (real estate) ok", tax.KeyExempt, "VATEX-SA-30", false},
+		{"E+Vatex32 (Z code) rejected", tax.KeyExempt, "VATEX-SA-32", true},
+		{"E+VatexEdu (Z code) rejected", tax.KeyExempt, "VATEX-SA-EDU", true},
+		{"E+VatexOutOfScope (O code) rejected", tax.KeyExempt, "VATEX-SA-OOS", true},
 
-		{"O+VatexOutOfScope ok", tax.KeyOutsideScope, zatca.VatexOutOfScope, false},
-		{"O+Vatex29 (E code) rejected", tax.KeyOutsideScope, zatca.VatexFinancialServices, true},
-		{"O+Vatex32 (Z code) rejected", tax.KeyOutsideScope, zatca.VatexExportGoods, true},
+		{"O+VatexOutOfScope ok", tax.KeyOutsideScope, "VATEX-SA-OOS", false},
+		{"O+Vatex29 (E code) rejected", tax.KeyOutsideScope, "VATEX-SA-29", true},
+		{"O+Vatex32 (Z code) rejected", tax.KeyOutsideScope, "VATEX-SA-32", true},
 	}
 
 	for _, tc := range cases {

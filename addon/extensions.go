@@ -9,63 +9,7 @@ import (
 const (
 	// ExtKeyInvoiceTypeTransactions identifies the ZATCA invoice subtype code (KSA-2).
 	ExtKeyInvoiceTypeTransactions cbc.Key = "sa-zatca-invoice-type"
-
-	// InvTypeCodeLen is the length of the invoice type code matching: TTXNESO
-	//   - TT (0-1): Invoice type (01=Standard, 02=Simplified)
-	//   - X  (2):   Third-party transaction
-	//   - N  (3):   Nominal supply transaction
-	//   - E  (4):   Export invoice
-	//   - S  (5):   Summary invoice
-	//   - O  (6):   Self-billed invoice
-	InvTypeCodeLen = 7
 )
-
-// InvTypesStandard contains all valid standard tax invoice type codes (KSA-2 starting with 01).
-var InvTypesStandard = []cbc.Code{
-	"0100000",
-	"0100001",
-	"0100010",
-	"0100011",
-	"0100100",
-	"0100110",
-	"0101000",
-	"0101001",
-	"0101010",
-	"0101011",
-	"0101100",
-	"0101110",
-	"0110000",
-	"0110001",
-	"0110010",
-	"0110011",
-	"0110100",
-	"0110110",
-	"0111000",
-	"0111001",
-	"0111010",
-	"0111011",
-	"0111100",
-	"0111110",
-}
-
-// InvTypesSimplified contains all valid simplified tax invoice type codes (KSA-2 starting with 02).
-var InvTypesSimplified = []cbc.Code{
-	"0200000",
-	"0200010",
-	"0201000",
-	"0201010",
-	"0210000",
-	"0210010",
-	"0211000",
-	"0211010",
-}
-
-var validTransactionTypes = func() []cbc.Code {
-	codes := make([]cbc.Code, 0, len(InvTypesStandard)+len(InvTypesSimplified))
-	codes = append(codes, InvTypesStandard...)
-	codes = append(codes, InvTypesSimplified...)
-	return codes
-}()
 
 var extensions = []*cbc.Definition{
 	{
@@ -83,7 +27,7 @@ var extensions = []*cbc.Definition{
 				transactions respectively.
 			`),
 		},
-		Pattern: `^0[12][01]{5}$`,
+		Pattern: invTypeCodePattern,
 		Values: []*cbc.Definition{
 			{
 				Code: "0100000",
