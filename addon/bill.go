@@ -42,8 +42,8 @@ func normalizeInvoice(inv *bill.Invoice) {
 	// Always set rounding to currency for SA ZATCA
 	inv.Tax.Rounding = tax.RoundingRuleCurrency
 
-	// Ensure issue time exists
 	if inv.IssueTime == nil {
+		// Ensure issue time exists. Calculate will set it to current time.
 		inv.IssueTime = &cal.Time{}
 	}
 
