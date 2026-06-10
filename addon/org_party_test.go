@@ -61,7 +61,7 @@ func TestOrgAddressRule02_StreetRequired(t *testing.T) {
 		inv.Supplier.Addresses[0].Street = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a street name")
+			"invoice addresses in SA must have a street name")
 	})
 }
 
@@ -71,7 +71,7 @@ func TestOrgAddressRule03_BuildingNumberRequired(t *testing.T) {
 		inv.Supplier.Addresses[0].Number = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 4 digits building number")
+			"invoice addresses in SA must have a 4 digits building number")
 	})
 }
 
@@ -81,7 +81,7 @@ func TestOrgAddressRule04_BuildingNumberMustBe4Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Number = "123"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 4 digits building number")
+			"invoice addresses in SA must have a 4 digits building number")
 	})
 
 	t.Run("non-numeric building number rejected (BR-KSA-37)", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestOrgAddressRule04_BuildingNumberMustBe4Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Number = "12A4"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 4 digits building number")
+			"invoice addresses in SA must have a 4 digits building number")
 	})
 
 	t.Run("5-digit building number rejected (BR-KSA-37)", func(t *testing.T) {
@@ -97,7 +97,7 @@ func TestOrgAddressRule04_BuildingNumberMustBe4Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Number = "12345"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 4 digits building number")
+			"invoice addresses in SA must have a 4 digits building number")
 	})
 
 	t.Run("4-digit building number accepted", func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestOrgAddressRule05_PostalCodeRequired(t *testing.T) {
 		inv.Supplier.Addresses[0].Code = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 5 digits postal code")
+			"invoice addresses in SA must have a 5 digits postal code")
 	})
 }
 
@@ -123,7 +123,7 @@ func TestOrgAddressRule06_PostalCodeMustBe5Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Code = "1234"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 5 digits postal code")
+			"invoice addresses in SA must have a 5 digits postal code")
 	})
 
 	t.Run("non-numeric postal code rejected (BR-KSA-66)", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestOrgAddressRule06_PostalCodeMustBe5Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Code = "1234A"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 5 digits postal code")
+			"invoice addresses in SA must have a 5 digits postal code")
 	})
 
 	t.Run("6-digit postal code rejected (BR-KSA-66)", func(t *testing.T) {
@@ -139,7 +139,7 @@ func TestOrgAddressRule06_PostalCodeMustBe5Digits(t *testing.T) {
 		inv.Supplier.Addresses[0].Code = "123456"
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a 5 digits postal code")
+			"invoice addresses in SA must have a 5 digits postal code")
 	})
 
 	t.Run("5-digit postal code accepted", func(t *testing.T) {
@@ -155,7 +155,7 @@ func TestOrgAddressRule07_CityRequired(t *testing.T) {
 		inv.Supplier.Addresses[0].Locality = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a city name")
+			"invoice addresses in SA must have a city name")
 	})
 }
 
@@ -165,7 +165,7 @@ func TestOrgAddressRule08_DistrictRequired(t *testing.T) {
 		inv.Supplier.Addresses[0].StreetExtra = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"address in SA must have a district name")
+			"invoice addresses in SA must have a district name")
 	})
 }
 
@@ -182,9 +182,9 @@ func TestOrgAddress_MultipleViolationsReported(t *testing.T) {
 	inv.Supplier.Addresses[0].Locality = ""
 	require.NoError(t, inv.Calculate())
 	err := rules.Validate(inv)
-	assert.ErrorContains(t, err, "address in SA must have a street name")
-	assert.ErrorContains(t, err, "address in SA must have a 4 digits building number")
-	assert.ErrorContains(t, err, "address in SA must have a 5 digits postal code")
-	assert.ErrorContains(t, err, "address in SA must have a city name")
-	assert.ErrorContains(t, err, "address in SA must have a district name")
+	assert.ErrorContains(t, err, "invoice addresses in SA must have a street name")
+	assert.ErrorContains(t, err, "invoice addresses in SA must have a 4 digits building number")
+	assert.ErrorContains(t, err, "invoice addresses in SA must have a 5 digits postal code")
+	assert.ErrorContains(t, err, "invoice addresses in SA must have a city name")
+	assert.ErrorContains(t, err, "invoice addresses in SA must have a district name")
 }

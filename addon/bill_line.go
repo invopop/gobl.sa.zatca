@@ -9,7 +9,7 @@ import (
 func billLineRules() *rules.Set {
 	return rules.For(new(bill.Line),
 		rules.Field("charges",
-			rules.Assert("01", "line charges are not allowed (BR-KSA-EN16931-06)", is.Length(0, 0)),
+			rules.Assert("01", "invoice line charges are not allowed (BR-KSA-EN16931-06)", is.Length(0, 0)),
 		),
 	)
 }

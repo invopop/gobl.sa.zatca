@@ -262,7 +262,7 @@ func TestTaxBlockExtensions(t *testing.T) {
 		inv := calculated(t, validStandardInvoice())
 		inv.Tax.Ext = inv.Tax.Ext.Delete(zatca.ExtKeyInvoiceType)
 		assert.ErrorContains(t, rules.Validate(inv),
-			"invoice transaction type extension is required")
+			"invoice tax sa-zatca-invoice-type extension is required")
 	})
 
 	t.Run("invalid invoice transaction type rejected", func(t *testing.T) {
@@ -273,7 +273,7 @@ func TestTaxBlockExtensions(t *testing.T) {
 			Set(zatca.ExtKeyInvoiceType, "9999999")
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"invoice transaction type must be valid")
+			"invoice tax sa-zatca-invoice-type extension must be valid")
 	})
 }
 
@@ -352,7 +352,7 @@ func TestSupplierTaxIDRequired(t *testing.T) {
 		inv.Supplier.TaxID = nil
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "supplier must have a tax ID (BR-KSA-39)")
+		assert.ErrorContains(t, err, "supplier must have a tax id (BR-KSA-39)")
 	})
 
 	t.Run("supplier with empty tax ID code fails", func(t *testing.T) {
@@ -360,7 +360,7 @@ func TestSupplierTaxIDRequired(t *testing.T) {
 		inv.Supplier.TaxID = &tax.Identity{Country: "SA", Code: ""}
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "supplier must have a tax ID code")
+		assert.ErrorContains(t, err, "supplier must have a tax id code")
 	})
 }
 
@@ -552,7 +552,7 @@ func TestBRKSA46_ExportInvoiceCustomerVAT(t *testing.T) {
 		inv.Customer.TaxID = &tax.Identity{Country: "SA", Code: "399999999900003"}
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"export invoices must not have buyer VAT registration number")
+			"invoice customer must not have a tax id for export invoices")
 	})
 }
 
@@ -970,7 +970,7 @@ func TestSelfBilledCustomerTaxIDRequired(t *testing.T) {
 		inv.Customer.TaxID = nil
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer must have a tax ID when self-billed")
+			"customer must have a tax id when self-billed")
 	})
 
 	t.Run("customer with empty tax ID code fails (BR-KSA-39)", func(t *testing.T) {
@@ -978,7 +978,7 @@ func TestSelfBilledCustomerTaxIDRequired(t *testing.T) {
 		inv.Customer.TaxID = &tax.Identity{Country: "SA", Code: ""}
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer must have a tax ID code")
+			"customer must have a tax id code")
 	})
 }
 

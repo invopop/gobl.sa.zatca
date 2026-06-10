@@ -19,10 +19,10 @@ func taxComboRules() *rules.Set {
 
 		// Extensions
 		rules.Field("ext",
-			rules.Assert("01", "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard (BR-KSA-CL-04)",
+			rules.Assert("01", "invoice line tax cef-vatex extension code must be present and valid for Z/E/O categories, and must not be set for Standard (BR-KSA-CL-04)",
 				is.Func("valid SA VAT exemption code", taxComboHasValidVATEX),
 			),
-			rules.Assert("02", "VAT category code must contain one of the values (S, Z, E, O) (BR-KSA-18)",
+			rules.Assert("02", "invoice line tax untdid-tax-category extension code must contain one of the values (S, Z, E, O) (BR-KSA-18)",
 				tax.ExtensionsHasCodes(untdid.ExtKeyTaxCategory,
 					en16931.TaxCategoryStandard,
 					en16931.TaxCategoryZero,
