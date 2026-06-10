@@ -40,6 +40,16 @@ var tags = []*tax.TagSet{
 					i18n.AR: "اسمية",
 				},
 			},
+			{
+				Key: tax.TagExport,
+				Name: i18n.String{
+					i18n.EN: "Export",
+					i18n.AR: "تصدير",
+				},
+				Desc: i18n.String{
+					i18n.EN: "Indicates that the invoice refers to an export of goods.",
+				},
+			},
 		},
 	},
 }
