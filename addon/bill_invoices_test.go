@@ -81,7 +81,7 @@ func validSupplier() *org.Party {
 			Code:    "300000000000003",
 		},
 		Identities: []*org.Identity{
-			{Type: zatca.IdentityTypeCRN, Code: "1234567890"},
+			{Type: "CRN", Code: "1234567890"},
 		},
 		Addresses: []*org.Address{validAddress()},
 	}
@@ -165,7 +165,7 @@ func validExportInvoice() *bill.Invoice {
 	inv.SetTags(tax.TagExport)
 	inv.Customer.TaxID = nil
 	inv.Customer.Identities = []*org.Identity{
-		{Type: zatca.IdentityTypeTIN, Code: "123456789012345"},
+		{Type: "TIN", Code: "123456789012345"},
 	}
 	return inv
 }
@@ -183,7 +183,7 @@ func validSelfBilledInvoice() *bill.Invoice {
 		Set(untdid.ExtKeyDocumentType, "388").
 		Set(zatca.ExtKeyInvoiceTypeTransactions, "0100001")
 	inv.Customer.Identities = []*org.Identity{
-		{Type: zatca.IdentityTypeCRN, Code: "1234567890"},
+		{Type: "CRN", Code: "1234567890"},
 	}
 	return inv
 }
@@ -382,37 +382,37 @@ func TestSupplierIdentities(t *testing.T) {
 	})
 
 	t.Run("CRN identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeCRN, "1234567890")
+		inv := withIdentity("CRN", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("MOM identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeMom, "1234567890")
+		inv := withIdentity("MOM", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("MLS identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeMLS, "1234567890")
+		inv := withIdentity("MLS", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("700 identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityType700, "1234567890")
+		inv := withIdentity("700", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("SAG identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeSAG, "1234567890")
+		inv := withIdentity("SAG", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("OTH identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeOTH, "1234567890")
+		inv := withIdentity("OTH", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
@@ -427,8 +427,8 @@ func TestSupplierIdentities(t *testing.T) {
 	t.Run("two identities fails", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Supplier.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeCRN, Code: "1234567890"},
-			{Type: zatca.IdentityTypeMLS, Code: "1234567890"},
+			{Type: "CRN", Code: "1234567890"},
+			{Type: "MLS", Code: "1234567890"},
 		}
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
@@ -436,14 +436,14 @@ func TestSupplierIdentities(t *testing.T) {
 	})
 
 	t.Run("NAT identity type fails (not in supplier list)", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeNational, "1234567890")
+		inv := withIdentity("NAT", "1234567890")
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
 		assert.ErrorContains(t, err, "supplier must have a valid identity")
 	})
 
 	t.Run("TIN identity type fails (not in supplier list)", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeTIN, "123456789012345")
+		inv := withIdentity("TIN", "123456789012345")
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
 		assert.ErrorContains(t, err, "supplier must have a valid identity")
@@ -499,7 +499,7 @@ func TestStandardInvoiceRequirements(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Customer.TaxID = nil
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeCRN, Code: "1010101010"},
+			{Type: "CRN", Code: "1010101010"},
 		}
 		require.NoError(t, inv.Calculate())
 		require.NoError(t, rules.Validate(inv))
@@ -643,7 +643,7 @@ func TestBRKSA49_25_EDUHEAExemption(t *testing.T) {
 	t.Run("EDU exemption with NAT identity passes", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeNational, Code: "1234567890"},
+			{Type: "NAT", Code: "1234567890"},
 		}
 		withEDUHEACombo(inv, "VATEX-SA-EDU")
 		require.NoError(t, inv.Calculate())
@@ -653,7 +653,7 @@ func TestBRKSA49_25_EDUHEAExemption(t *testing.T) {
 	t.Run("HEA exemption with NAT identity passes", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeNational, Code: "1234567890"},
+			{Type: "NAT", Code: "1234567890"},
 		}
 		withEDUHEACombo(inv, "VATEX-SA-HEA")
 		require.NoError(t, inv.Calculate())
@@ -663,7 +663,7 @@ func TestBRKSA49_25_EDUHEAExemption(t *testing.T) {
 	t.Run("EDU exemption without NAT identity fails (BR-KSA-49)", func(t *testing.T) {
 		inv := validStandardInvoice()
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeCRN, Code: "1010101010"},
+			{Type: "CRN", Code: "1010101010"},
 		}
 		withEDUHEACombo(inv, "VATEX-SA-EDU")
 		require.NoError(t, inv.Calculate())
@@ -682,7 +682,7 @@ func TestBRKSA49_25_EDUHEAExemption(t *testing.T) {
 		inv := validSimplifiedInvoice()
 		inv.Customer.Name = ""
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeNational, Code: "1234567890"},
+			{Type: "NAT", Code: "1234567890"},
 		}
 		withEDUHEACombo(inv, "VATEX-SA-EDU")
 		require.NoError(t, inv.Calculate())
@@ -749,7 +749,7 @@ func hasSelfBilledBit(code cbc.Code) bool {
 func clearCustomerVAT(inv *bill.Invoice) {
 	inv.Customer.TaxID = nil
 	inv.Customer.Identities = []*org.Identity{
-		{Type: zatca.IdentityTypeTIN, Code: "123456789012345"},
+		{Type: "TIN", Code: "123456789012345"},
 	}
 }
 
@@ -758,7 +758,7 @@ func clearCustomerVAT(inv *bill.Invoice) {
 // bit is set. It does not touch TaxID — BR-KSA-39 still requires it.
 func setCustomerSelfBilledIdentity(inv *bill.Invoice) {
 	inv.Customer.Identities = []*org.Identity{
-		{Type: zatca.IdentityTypeCRN, Code: "1234567890"},
+		{Type: "CRN", Code: "1234567890"},
 	}
 }
 
@@ -1000,37 +1000,37 @@ func TestSelfBilledCustomerIdentities(t *testing.T) {
 	})
 
 	t.Run("CRN identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeCRN, "1234567890")
+		inv := withIdentity("CRN", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("MOM identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeMom, "1234567890")
+		inv := withIdentity("MOM", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("MLS identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeMLS, "1234567890")
+		inv := withIdentity("MLS", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("700 identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityType700, "1234567890")
+		inv := withIdentity("700", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("SAG identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeSAG, "1234567890")
+		inv := withIdentity("SAG", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
 
 	t.Run("OTH identity passes", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeOTH, "1234567890")
+		inv := withIdentity("OTH", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.NoError(t, rules.Validate(inv))
 	})
@@ -1043,14 +1043,14 @@ func TestSelfBilledCustomerIdentities(t *testing.T) {
 	})
 
 	t.Run("NAT identity fails — not in supplier-style list (BR-KSA-08)", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeNational, "1234567890")
+		inv := withIdentity("NAT", "1234567890")
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
 			"customer must have a valid identity")
 	})
 
 	t.Run("TIN identity fails — not in supplier-style list (BR-KSA-08)", func(t *testing.T) {
-		inv := withIdentity(zatca.IdentityTypeTIN, "123456789012345")
+		inv := withIdentity("TIN", "123456789012345")
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
 			"customer must have a valid identity")
@@ -1059,8 +1059,8 @@ func TestSelfBilledCustomerIdentities(t *testing.T) {
 	t.Run("two identities fails (BR-KSA-08)", func(t *testing.T) {
 		inv := validSelfBilledInvoice()
 		inv.Customer.Identities = []*org.Identity{
-			{Type: zatca.IdentityTypeCRN, Code: "1234567890"},
-			{Type: zatca.IdentityTypeMLS, Code: "1234567890"},
+			{Type: "CRN", Code: "1234567890"},
+			{Type: "MLS", Code: "1234567890"},
 		}
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),

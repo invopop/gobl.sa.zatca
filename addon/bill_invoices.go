@@ -11,53 +11,12 @@ import (
 	"github.com/invopop/gobl/tax"
 )
 
-// UNTDID 1001 document type codes accepted by ZATCA.
-const (
-	docTypeTaxInvoice cbc.Code = "388"
-	docTypePrepayment cbc.Code = "386"
-	docTypeDebitNote  cbc.Code = "383"
-	docTypeCreditNote cbc.Code = "381"
-)
-
-// Other valid identities used by ZATCA
-const (
-	IdentityTypeTIN      cbc.Code = "TIN"
-	IdentityTypeCRN      cbc.Code = "CRN"
-	IdentityTypeMom      cbc.Code = "MOM"
-	IdentityTypeMLS      cbc.Code = "MLS"
-	IdentityType700      cbc.Code = "700"
-	IdentityTypeSAG      cbc.Code = "SAG"
-	IdentityTypeNational cbc.Code = "NAT"
-	IdentityTypeGcc      cbc.Code = "GCC"
-	IdentityTypeIqa      cbc.Code = "IQA"
-	IdentityTypePassport cbc.Code = "PAS"
-	IdentityTypeOTH      cbc.Code = "OTH"
-)
-
 var (
-	customerValidIdentities = []cbc.Code{
-		IdentityTypeTIN,
-		IdentityTypeCRN,
-		IdentityTypeMom,
-		IdentityTypeMLS,
-		IdentityType700,
-		IdentityTypeSAG,
-		IdentityTypeNational,
-		IdentityTypeGcc,
-		IdentityTypeIqa,
-		IdentityTypePassport,
-		IdentityTypeOTH,
-	}
+	// ZATCA party identification scheme codes valid for a customer.
+	customerValidIdentities = []cbc.Code{"TIN", "CRN", "MOM", "MLS", "700", "SAG", "NAT", "GCC", "IQA", "PAS", "OTH"}
 
-	// SupplierValidIdentities holds ZATCA specific supplier identitites
-	SupplierValidIdentities = []cbc.Code{
-		IdentityTypeCRN,
-		IdentityTypeMom,
-		IdentityTypeMLS,
-		IdentityType700,
-		IdentityTypeSAG,
-		IdentityTypeOTH,
-	}
+	// SupplierValidIdentities holds the scheme codes valid for a supplier.
+	SupplierValidIdentities = []cbc.Code{"CRN", "MOM", "MLS", "700", "SAG", "OTH"}
 )
 
 func billInvoiceRules() *rules.Set {
@@ -78,7 +37,7 @@ func billInvoiceRules() *rules.Set {
 					tax.ExtensionsRequire(ExtKeyInvoiceTypeTransactions),
 				),
 				rules.Assert("05", "document type must be a valid ZATCA type (388, 386, 383, 381) (BR-KSA-05)",
-					tax.ExtensionsHasCodes(untdid.ExtKeyDocumentType, docTypeTaxInvoice, docTypePrepayment, docTypeDebitNote, docTypeCreditNote),
+					tax.ExtensionsHasCodes(untdid.ExtKeyDocumentType, "388", "386", "383", "381"),
 				),
 				rules.Assert("06", "invoice transaction type must be valid (BR-KSA-06)",
 					tax.ExtensionsHasCodes(ExtKeyInvoiceTypeTransactions, validTransactionTypes...),
@@ -177,7 +136,7 @@ func billInvoiceRules() *rules.Set {
 			rules.Field("customer",
 				rules.Field("identities",
 					rules.Assert("22", "customer must have a national ID (NAT) when tax exemption is VATEX-SA-EDU or VATEX-SA-HEA (BR-KSA-49)",
-						org.IdentitiesTypeIn(IdentityTypeNational),
+						org.IdentitiesTypeIn("NAT"),
 					),
 				),
 			),
