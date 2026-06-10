@@ -468,7 +468,7 @@ func TestStandardInvoiceRequirements(t *testing.T) {
 		inv.Customer.Name = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer name must be present (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
+			"customer must be present for standard tax invoices, simplified summary invoices, and simplified invoices with EDU or HEA exemptions (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
 	})
 
 	t.Run("customer address street missing fails (BR-KSA-10)", func(t *testing.T) {
@@ -616,7 +616,7 @@ func TestSimplifiedSummaryRequirements(t *testing.T) {
 		inv.Customer.Name = ""
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer name must be present (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
+			"customer must be present for standard tax invoices, simplified summary invoices, and simplified invoices with EDU or HEA exemptions (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
 	})
 }
 
@@ -687,7 +687,7 @@ func TestBRKSA49_25_EDUHEAExemption(t *testing.T) {
 		withEDUHEACombo(inv, "VATEX-SA-EDU")
 		require.NoError(t, inv.Calculate())
 		assert.ErrorContains(t, rules.Validate(inv),
-			"customer name must be present (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
+			"customer must be present for standard tax invoices, simplified summary invoices, and simplified invoices with EDU or HEA exemptions (BR-KSA-71), (BR-KSA-25), (BR-KSA-42)")
 	})
 }
 

@@ -57,7 +57,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 
 	t.Run("exempt with VATEX from another category (VATEX-SA-32 belongs to Z) fails", func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard",
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard",
 			"VATEX-SA-32 belongs to category Z, must not be accepted on exempt (E)")
 	})
 
@@ -93,7 +93,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 
 	t.Run("outside scope with mismatched VATEX (Vatex29 belongs to E) fails", func(t *testing.T) {
@@ -106,7 +106,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 
 	t.Run("zero-rated with valid VATEX-SA-32 (export goods) is valid", func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 
 	t.Run("zero-rated with VATEX from another category (VATEX-SA-29 belongs to E) fails", func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestTaxComboRule01_VATEXRequired(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard",
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard",
 			"VATEX-SA-29 belongs to category E, must not be accepted on zero-rated (Z)")
 	})
 }
@@ -168,7 +168,7 @@ func TestTaxComboRule02_StandardNoVATEX(t *testing.T) {
 		})
 		require.NoError(t, inv.Calculate())
 		err := rules.Validate(inv)
-		assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+		assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 	})
 }
 
@@ -271,7 +271,7 @@ func TestTaxComboRule01_UnrecognizedCategoryPassesVATEX(t *testing.T) {
 		// The VATEX rule itself must not fail — "AE" hits the default branch
 		// which returns true unconditionally. Rule 03 (category code) will fail
 		// separately, but the VATEX assertion (rule 01) must not fire.
-		assert.NotContains(t, errString(err), "VATEX exemption code must be present and valid")
+		assert.NotContains(t, errString(err), "VAT exemption code must be present and valid")
 	})
 
 	t.Run("unrecognized tax category without VATEX still passes VATEX rule", func(t *testing.T) {
@@ -283,7 +283,7 @@ func TestTaxComboRule01_UnrecognizedCategoryPassesVATEX(t *testing.T) {
 		// Override the normalised category to an unknown value.
 		inv.Lines[0].Taxes[0].Ext = inv.Lines[0].Taxes[0].Ext.Set(untdid.ExtKeyTaxCategory, en16931.TaxCategoryReverseCharge)
 		err := rules.Validate(inv)
-		assert.NotContains(t, errString(err), "VATEX exemption code must be present and valid")
+		assert.NotContains(t, errString(err), "VAT exemption code must be present and valid")
 	})
 }
 
@@ -328,7 +328,7 @@ func TestTaxComboVATEX_PerCategoryRestrictions(t *testing.T) {
 			require.NoError(t, inv.Calculate())
 			err := rules.Validate(inv)
 			if tc.wantErr {
-				assert.ErrorContains(t, err, "VATEX exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
+				assert.ErrorContains(t, err, "VAT exemption code must be present and valid for Z/E/O categories, and must not be set for Standard")
 			} else {
 				require.NoError(t, err, "%s: expected combo to validate", tc.name)
 			}
