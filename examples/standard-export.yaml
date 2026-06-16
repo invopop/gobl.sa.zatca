@@ -1,13 +1,13 @@
 $schema: "https://gobl.org/draft-0/bill/invoice"
 $addons: ["sa-zatca-v1"]
-uuid: "3aea7b56-59d8-4beb-90bd-f8f280d853a1"
-issue_date: "2024-06-15"
+uuid: "3aea7b56-59d8-4beb-90bd-f8f280d852d0"
+issue_date: "2022-02-01"
 issue_time: "12:00:00"
-code: "SAMPLE-SB-001"
+code: "SAMPLE-EX-001"
 type: "standard"
 regime: "SA"
 $tags:
-  - self-billed
+  - export
 
 supplier:
   tax_id:
@@ -27,27 +27,22 @@ supplier:
       country: "SA"
 
 customer:
-  tax_id:
-    country: "SA"
-    code: "399999999900003"
+  name: "Global Importers Ltd"
   identities:
-    - type: "CRN"
-      code: "123456789012345"
-  name: "Sample Consumer LLC"
+    - type: "PAS"
+      code: "X1234567"
   addresses:
-    - street: "Olaya Street"
-      street_extra: "Al Malaz"
-      num: "5678"
-      locality: "Riyadh"
-      region: "Riyadh"
-      code: "54321"
-      country: "SA"
+    - street: "Sheikh Zayed Road"
+      num: "100"
+      locality: "Dubai"
+      code: "00000"
+      country: "AE"
 
 delivery:
-  date: "2024-06-15"
+  date: "2022-02-01"
   period:
-    start: "2024-06-01"
-    end: "2024-06-30"
+    start: "2022-02-01"
+    end: "2022-02-28"
 
 payment:
   instructions:
@@ -63,4 +58,7 @@ lines:
       unit: "h"
     taxes:
       - cat: VAT
-        rate: standard
+        rate: zero
+        ext:
+          untdid-tax-category: "Z"
+          cef-vatex: "VATEX-SA-32"

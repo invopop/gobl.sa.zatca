@@ -223,9 +223,8 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 			},
 		}
 		norm.Normalize(inv)
-		require.Len(t, inv.Tax.Notes, 2)
-		assert.Nil(t, inv.Tax.Notes[0])
-		assert.Equal(t, "Financial services mentioned in Article 29 of the VAT Regulations", inv.Tax.Notes[1].Text)
+		require.Len(t, inv.Tax.Notes, 1)
+		assert.Equal(t, "Financial services mentioned in Article 29 of the VAT Regulations", inv.Tax.Notes[0].Text)
 	})
 
 	t.Run("unknown VATEX code does not add note", func(t *testing.T) {
