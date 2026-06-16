@@ -1,13 +1,13 @@
 $schema: "https://gobl.org/draft-0/bill/invoice"
 $addons: ["sa-zatca-v1"]
-uuid: "3aea7b56-59d8-4beb-90bd-f8f280d853a1"
-issue_date: "2024-06-15"
+uuid: "3aea7b56-59d8-4beb-90bd-f8f280d852b0"
+issue_date: "2022-02-01"
 issue_time: "12:00:00"
-code: "SAMPLE-SB-001"
+code: "SAMPLE-TP-001"
 type: "standard"
 regime: "SA"
 $tags:
-  - self-billed
+  - third-party
 
 supplier:
   tax_id:
@@ -27,11 +27,8 @@ supplier:
       country: "SA"
 
 customer:
-  tax_id:
-    country: "SA"
-    code: "399999999900003"
   identities:
-    - type: "CRN"
+    - type: "TIN"
       code: "123456789012345"
   name: "Sample Consumer LLC"
   addresses:
@@ -44,10 +41,10 @@ customer:
       country: "SA"
 
 delivery:
-  date: "2024-06-15"
+  date: "2022-02-01"
   period:
-    start: "2024-06-01"
-    end: "2024-06-30"
+    start: "2022-02-01"
+    end: "2022-02-28"
 
 payment:
   instructions:

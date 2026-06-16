@@ -4,7 +4,7 @@
 		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
 		"dig": {
 			"alg": "sha256",
-			"val": "1f7ebba34b2d14746eb410f1d171e161688f5858c6297c27519efa65dca62b12"
+			"val": "fd22c90d1cf7d0162d38e0c9a0a8a3a234279d18e694b3a98a4a09c3b99f2af8"
 		}
 	},
 	"doc": {
@@ -15,18 +15,18 @@
 			"sa-zatca-v1"
 		],
 		"$tags": [
-			"self-billed"
+			"third-party"
 		],
-		"uuid": "3aea7b56-59d8-4beb-90bd-f8f280d853a1",
+		"uuid": "3aea7b56-59d8-4beb-90bd-f8f280d852b0",
 		"type": "standard",
-		"code": "SAMPLE-SB-001",
-		"issue_date": "2024-06-15",
+		"code": "SAMPLE-TP-001",
+		"issue_date": "2022-02-01",
 		"issue_time": "12:00:00",
 		"currency": "SAR",
 		"tax": {
 			"rounding": "currency",
 			"ext": {
-				"sa-zatca-invoice-type": "0100001",
+				"sa-zatca-invoice-type": "0110000",
 				"untdid-document-type": "388"
 			}
 		},
@@ -56,13 +56,9 @@
 		},
 		"customer": {
 			"name": "Sample Consumer LLC",
-			"tax_id": {
-				"country": "SA",
-				"code": "399999999900003"
-			},
 			"identities": [
 				{
-					"type": "CRN",
+					"type": "TIN",
 					"code": "123456789012345"
 				}
 			],
@@ -114,10 +110,10 @@
 			}
 		},
 		"delivery": {
-			"date": "2024-06-15",
+			"date": "2022-02-01",
 			"period": {
-				"start": "2024-06-01",
-				"end": "2024-06-30"
+				"start": "2022-02-01",
+				"end": "2022-02-28"
 			}
 		},
 		"totals": {

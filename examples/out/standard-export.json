@@ -4,7 +4,7 @@
 		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
 		"dig": {
 			"alg": "sha256",
-			"val": "1f7ebba34b2d14746eb410f1d171e161688f5858c6297c27519efa65dca62b12"
+			"val": "8c3ea633c43c16b11d847a28acf1d06c88f25bb024c0af94169416a58a41ba01"
 		}
 	},
 	"doc": {
@@ -15,20 +15,30 @@
 			"sa-zatca-v1"
 		],
 		"$tags": [
-			"self-billed"
+			"export"
 		],
-		"uuid": "3aea7b56-59d8-4beb-90bd-f8f280d853a1",
+		"uuid": "3aea7b56-59d8-4beb-90bd-f8f280d852d0",
 		"type": "standard",
-		"code": "SAMPLE-SB-001",
-		"issue_date": "2024-06-15",
+		"code": "SAMPLE-EX-001",
+		"issue_date": "2022-02-01",
 		"issue_time": "12:00:00",
 		"currency": "SAR",
 		"tax": {
 			"rounding": "currency",
 			"ext": {
-				"sa-zatca-invoice-type": "0100001",
+				"sa-zatca-invoice-type": "0100100",
 				"untdid-document-type": "388"
-			}
+			},
+			"notes": [
+				{
+					"cat": "VAT",
+					"key": "zero",
+					"text": "Export of goods",
+					"ext": {
+						"untdid-tax-category": "Z"
+					}
+				}
+			]
 		},
 		"supplier": {
 			"name": "Acme Corp Saudi",
@@ -55,26 +65,20 @@
 			]
 		},
 		"customer": {
-			"name": "Sample Consumer LLC",
-			"tax_id": {
-				"country": "SA",
-				"code": "399999999900003"
-			},
+			"name": "Global Importers Ltd",
 			"identities": [
 				{
-					"type": "CRN",
-					"code": "123456789012345"
+					"type": "PAS",
+					"code": "X1234567"
 				}
 			],
 			"addresses": [
 				{
-					"num": "5678",
-					"street": "Olaya Street",
-					"street_extra": "Al Malaz",
-					"locality": "Riyadh",
-					"region": "Riyadh",
-					"code": "54321",
-					"country": "SA"
+					"num": "100",
+					"street": "Sheikh Zayed Road",
+					"locality": "Dubai",
+					"code": "00000",
+					"country": "AE"
 				}
 			]
 		},
@@ -91,11 +95,11 @@
 				"taxes": [
 					{
 						"cat": "VAT",
-						"key": "standard",
-						"rate": "general",
-						"percent": "15.0%",
+						"key": "zero",
+						"percent": "0%",
 						"ext": {
-							"untdid-tax-category": "S"
+							"cef-vatex": "VATEX-SA-32",
+							"untdid-tax-category": "Z"
 						}
 					}
 				],
@@ -114,10 +118,10 @@
 			}
 		},
 		"delivery": {
-			"date": "2024-06-15",
+			"date": "2022-02-01",
 			"period": {
-				"start": "2024-06-01",
-				"end": "2024-06-30"
+				"start": "2022-02-01",
+				"end": "2022-02-28"
 			}
 		},
 		"totals": {
@@ -129,23 +133,24 @@
 						"code": "VAT",
 						"rates": [
 							{
-								"key": "standard",
+								"key": "zero",
 								"ext": {
-									"untdid-tax-category": "S"
+									"cef-vatex": "VATEX-SA-32",
+									"untdid-tax-category": "Z"
 								},
 								"base": "1800.00",
-								"percent": "15.0%",
-								"amount": "270.00"
+								"percent": "0%",
+								"amount": "0.00"
 							}
 						],
-						"amount": "270.00"
+						"amount": "0.00"
 					}
 				],
-				"sum": "270.00"
+				"sum": "0.00"
 			},
-			"tax": "270.00",
-			"total_with_tax": "2070.00",
-			"payable": "2070.00"
+			"tax": "0.00",
+			"total_with_tax": "1800.00",
+			"payable": "1800.00"
 		}
 	}
 }
