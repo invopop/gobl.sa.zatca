@@ -3,7 +3,7 @@ module github.com/invopop/gobl.sa.zatca
 go 1.24.0
 
 require (
-	github.com/invopop/gobl v0.403.1-0.20260609172924-df1611e351a6
+	github.com/invopop/gobl v0.500.0
 	github.com/stretchr/testify v1.11.1
 )
 
