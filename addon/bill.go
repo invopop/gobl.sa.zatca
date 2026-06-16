@@ -33,7 +33,7 @@ func normalizeInvoiceType(inv *bill.Invoice) {
 	if inv.Tax.GetExt(ExtKeyInvoiceType) != cbc.CodeEmpty {
 		return
 	}
-	it := invoiceType{
+	it := InvoiceType{
 		Simplified: inv.HasTags(tax.TagSimplified),
 		ThirdParty: inv.HasTags(TagThirdParty),
 		Nominal:    inv.HasTags(TagNominal),
