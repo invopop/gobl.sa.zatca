@@ -5,6 +5,7 @@ import (
 	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/currency"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/rules"
 	"github.com/invopop/gobl/rules/is"
@@ -193,6 +194,11 @@ func billInvoiceRules() *rules.Set {
 					),
 				),
 			),
+		),
+
+		// BT-111
+		rules.Assert("31", "invoice currency must be SAR or include an exchange rate to convert to SAR",
+			currency.CanConvertTo(currency.SAR),
 		),
 	)
 }
