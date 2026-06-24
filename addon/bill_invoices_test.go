@@ -9,6 +9,7 @@ import (
 	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/currency"
 	"github.com/invopop/gobl/num"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/pay"
@@ -1080,5 +1081,34 @@ func TestSelfBilledRuleDoesNotApplyWhenBitUnset(t *testing.T) {
 		require.NoError(t, rules.Validate(inv))
 		// Sanity: KSA-2 self-billed bit is unset.
 		assert.NotEqual(t, byte('1'), inv.Tax.Ext.Get(zatca.ExtKeyInvoiceType).String()[6])
+	})
+}
+
+// ============================================================================
+// Group — Rule 31: Foreign-currency invoices must convert to SAR
+// ============================================================================
+
+func TestRule31_ExchangeRateToSAR(t *testing.T) {
+	t.Run("SAR invoice needs no exchange rate", func(t *testing.T) {
+		inv := validStandardInvoice() // Currency is SAR
+		require.NoError(t, rules.Validate(calculated(t, inv)))
+	})
+
+	t.Run("foreign currency without exchange rate fails", func(t *testing.T) {
+		inv := validStandardInvoice()
+		inv.Currency = currency.USD
+		require.NoError(t, inv.Calculate())
+		assert.ErrorContains(t, rules.Validate(inv),
+			"invoice currency must be SAR or include an exchange rate to convert to SAR")
+	})
+
+	t.Run("foreign currency with exchange rate to SAR is valid", func(t *testing.T) {
+		inv := validStandardInvoice()
+		inv.Currency = currency.USD
+		inv.ExchangeRates = []*currency.ExchangeRate{
+			{From: currency.USD, To: currency.SAR, Amount: num.MakeAmount(375, 2)},
+		}
+		require.NoError(t, inv.Calculate())
+		require.NoError(t, rules.Validate(inv))
 	})
 }
