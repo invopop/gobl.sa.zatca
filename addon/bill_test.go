@@ -1,9 +1,9 @@
 package zatca_test
 
 import (
-	"strings"
 	"testing"
 
+	"github.com/invopop/gobl.sa.zatca/catalogues/vatexsa"
 	"github.com/invopop/gobl/addons/eu/en16931"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/catalogues/cef"
@@ -297,21 +297,16 @@ func TestNormalizeInvoiceExemptionNotes(t *testing.T) {
 	})
 }
 
-// TestNormalizeTaxNotesFromCEF verifies that, for every ZATCA VATEX-SA
+// TestNormalizeTaxNotesFromCatalogue verifies that, for every ZATCA VATEX-SA
 // exemption code, an invoice line carrying that code but no user-provided tax
-// note is automatically given one whose text is sourced from the CEF VATEX
-// extension definition. This guards against re-introducing a locally
+// note is automatically given one whose text is sourced from this module's
+// VATEX-SA catalogue. This guards against re-introducing a locally
 // maintained code->reason map that could drift from the catalogue.
-func TestNormalizeTaxNotesFromCEF(t *testing.T) {
-	vatex := tax.ExtensionForKey(cef.ExtKeyVATEX)
+func TestNormalizeTaxNotesFromCatalogue(t *testing.T) {
+	vatex := tax.ExtensionForKey(vatexsa.ExtKeyVATEX)
 	require.NotNil(t, vatex)
-
-	var saCodes int
+	require.Len(t, vatex.Values, 16, "expected all ZATCA VATEX-SA codes to be exercised")
 	for _, def := range vatex.Values {
-		if !strings.HasPrefix(def.Code.String(), "VATEX-SA") {
-			continue
-		}
-		saCodes++
 		t.Run(def.Code.String(), func(t *testing.T) {
 			inv := validStandardInvoice()
 			inv.Tax = &bill.Tax{} // no user-provided notes
@@ -337,12 +332,11 @@ func TestNormalizeTaxNotesFromCEF(t *testing.T) {
 			norm.Normalize(inv)
 
 			want := def.Name.In(i18n.EN)
-			require.NotEmpty(t, want, "CEF definition must provide an English name")
+			require.NotEmpty(t, want, "catalogue definition must provide an English name")
 			require.Len(t, inv.Tax.Notes, 1)
 			assert.Equal(t, want, inv.Tax.Notes[0].Text)
 		})
 	}
-	assert.Equal(t, 16, saCodes, "expected all ZATCA VATEX-SA codes to be exercised")
 }
 
 func TestBillDiscountRules(t *testing.T) {

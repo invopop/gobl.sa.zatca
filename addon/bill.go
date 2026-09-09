@@ -1,6 +1,7 @@
 package zatca
 
 import (
+	"github.com/invopop/gobl.sa.zatca/catalogues/vatexsa"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cal"
 	"github.com/invopop/gobl/catalogues/cef"
@@ -48,7 +49,7 @@ func normalizeInvoiceType(inv *bill.Invoice) {
 // VAT categories E,Z,O must have an associated tax note. This
 // validation adds them if not previously provided by the user
 func normalizeTaxNotes(inv *bill.Invoice) {
-	vatex := tax.ExtensionForKey(cef.ExtKeyVATEX)
+	vatex := tax.ExtensionForKey(vatexsa.ExtKeyVATEX)
 	if vatex == nil {
 		return
 	}

@@ -72,11 +72,15 @@ Declare the addon on a document (or let the regime/scenario add it) and
 | Key | Description |
 | --- | --- |
 | `sa-zatca-invoice-type` | ZATCA invoice transaction type (KSA-2): a 7-character `TTXNESO` string encoding the main type (`01` standard / `02` simplified) plus binary flags for third-party, nominal, export, summary and self-billed transactions. |
+| `vatex-sa` | ZATCA VATEX-SA exemption reason codes, registered by this module's own catalogue (`data/catalogues/vatex_sa.json`). |
 
-VATEX exemption reasons reuse GOBL core's CEF catalogue extension
-(`cef-vatex`), which already defines the `VATEX-SA-*` codes. The addon
-validates them per VAT category and copies their description into the invoice
-tax notes (BR-KSA-83).
+VATEX exemption reasons are still carried on documents under GOBL core's CEF
+catalogue extension key (`cef-vatex`), but the `VATEX-SA-*` codes themselves
+are defined by this module's own catalogue (`data/catalogues/vatex_sa.json`,
+registered by `catalogues/vatexsa`): they are ZATCA's KSA extension of the
+VATEX code list, not part of the official CEF list. The addon validates them
+per VAT category and copies their description into the invoice tax notes
+(BR-KSA-83).
 
 ## Tags
 
