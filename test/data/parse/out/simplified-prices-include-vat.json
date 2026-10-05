@@ -4,7 +4,7 @@
 		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
 		"dig": {
 			"alg": "sha256",
-			"val": "e9c3ca3e9933d64d34fbacef3a703d4ec38fcf68839df313d96fab06dfb8acf4"
+			"val": "15240dcbf1bc7b1e87f6aa2bd6a921f967cb0d70b666c71a558abcb2957b498b"
 		}
 	},
 	"doc": {
@@ -17,11 +17,11 @@
 		"$tags": [
 			"simplified"
 		],
-		"uuid": "6d0ad1e1-9c0e-4a9b-8f2b-6c5a1d8e4f30",
+		"uuid": "01a10c1f-2f1e-7b16-ba74-035e7f3fb728",
 		"type": "standard",
-		"code": "INCL-001",
-		"issue_date": "2024-04-02",
-		"issue_time": "17:45:00",
+		"code": "TEST-00002",
+		"issue_date": "2026-10-05",
+		"issue_time": "15:52:12",
 		"currency": "SAR",
 		"tax": {
 			"rounding": "currency",
@@ -31,7 +31,7 @@
 			}
 		},
 		"supplier": {
-			"name": "شركة توريد التكنولوجيا بأقصى سرعة المحدودة | Maximum Speed Tech Supply LTD",
+			"name": "Sample Payments Saudi LTD",
 			"tax_id": {
 				"country": "SA",
 				"code": "399999999900003"
@@ -39,16 +39,36 @@
 			"identities": [
 				{
 					"type": "CRN",
-					"code": "1010010000"
+					"code": "4030123456"
 				}
 			],
 			"addresses": [
 				{
-					"num": "2322",
-					"street": "الامير سلطان | Prince Sultan 2322",
-					"street_extra": "المربع | Al-Murabba",
-					"locality": "الرياض | Riyadh",
-					"code": "23333",
+					"num": "1234",
+					"street": "King Fahd Road 1234",
+					"street_extra": "Al Olaya",
+					"locality": "Riyadh",
+					"code": "12643",
+					"country": "SA"
+				}
+			]
+		},
+		"customer": {
+			"name": "Sample Consumer LLC",
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "1010567890"
+				}
+			],
+			"addresses": [
+				{
+					"num": "4321",
+					"street": "Northern Ring Br Rd 4321",
+					"street_extra": "Al Nakheel",
+					"locality": "Riyadh",
+					"region": "Riyadh",
+					"code": "13511",
 					"country": "SA"
 				}
 			]
@@ -60,9 +80,9 @@
 				"item": {
 					"name": "Card payments: Online",
 					"price": "871.5652",
-					"unit": "one",
+					"unit": "piece",
 					"ext": {
-						"untdid-unit": "C62"
+						"untdid-unit": "H87"
 					}
 				},
 				"sum": "871.57",
@@ -82,11 +102,11 @@
 				"i": 2,
 				"quantity": "1",
 				"item": {
-					"name": "Card payments: Terminal",
+					"name": "Card payments: Online",
 					"price": "8.6957",
-					"unit": "one",
+					"unit": "piece",
 					"ext": {
-						"untdid-unit": "C62"
+						"untdid-unit": "H87"
 					}
 				},
 				"sum": "8.70",
@@ -106,11 +126,11 @@
 				"i": 3,
 				"quantity": "1",
 				"item": {
-					"name": "Hair treatment",
+					"name": "Card payments: Terminal",
 					"price": "289.8522",
-					"unit": "one",
+					"unit": "piece",
 					"ext": {
-						"untdid-unit": "C62"
+						"untdid-unit": "H87"
 					}
 				},
 				"sum": "289.85",
@@ -132,9 +152,9 @@
 				"item": {
 					"name": "Processing fee",
 					"price": "0.0435",
-					"unit": "one",
+					"unit": "piece",
 					"ext": {
-						"untdid-unit": "C62"
+						"untdid-unit": "H87"
 					}
 				},
 				"sum": "0.04",
@@ -156,9 +176,9 @@
 				"item": {
 					"name": "Monthly subscription",
 					"price": "869.5565",
-					"unit": "one",
+					"unit": "piece",
 					"ext": {
-						"untdid-unit": "C62"
+						"untdid-unit": "H87"
 					}
 				},
 				"sum": "869.56",
@@ -177,14 +197,17 @@
 		],
 		"payment": {
 			"terms": {
-				"notes": "Payment due within 30 days"
+				"notes": "Payment on receipt of invoice"
 			},
 			"instructions": {
-				"key": "credit-transfer",
+				"key": "debit-transfer",
 				"ext": {
-					"untdid-payment-means": "30"
+					"untdid-payment-means": "31"
 				}
 			}
+		},
+		"delivery": {
+			"date": "2026-10-05"
 		},
 		"totals": {
 			"sum": "2039.72",
