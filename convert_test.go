@@ -83,6 +83,7 @@ func TestConvert(t *testing.T) {
 			require.NoError(t, err)
 
 			if *update {
+				require.NoError(t, os.MkdirAll(filepath.Dir(example.golden), 0o755))
 				require.NoError(t, os.WriteFile(example.golden, data, 0644))
 			}
 

@@ -58,6 +58,7 @@ func TestParse(t *testing.T) {
 			if *update {
 				golden, err := json.MarshalIndent(env, "", "\t")
 				require.NoError(t, err)
+				require.NoError(t, os.MkdirAll(filepath.Dir(outPath), 0o755))
 				require.NoError(t, os.WriteFile(outPath, golden, 0644))
 			}
 
