@@ -182,19 +182,22 @@ and back:
 | Stage | Test | In | Out |
 | --- | --- | --- | --- |
 | Build | `TestExamples` | `examples/*.yaml` | `examples/out/*.json` |
-| Convert | `TestConvert` | `examples/out/*.json` | `test/data/convert/out/*.xml` |
-| Parse | `TestParse` | `test/data/convert/out/*.xml` | `test/data/parse/out/*.json` |
+| Convert | `TestConvert` | `test/data/convert/*.json` | `test/data/convert/out/*.xml` |
+| Parse | `TestParse` | `test/data/parse/*.xml` | `test/data/parse/out/*.json` |
 
-Nothing is copied between stages: each test reads the previous one's golden
-directory, so `examples/` stays GOBL-only and an example added there is covered
-end to end. Regenerate every golden after an intentional change with:
+Each stage keeps its own input beside its output, so a fixture directory shows
+what went in as well as what came out. The inputs are copies of the previous
+stage's output, refreshed on update, which is what ties the chain together:
+`examples/` stays GOBL-only, and an example added there is covered end to end.
+Regenerate every golden after an intentional change with:
 
 ```sh
 go test . -update
 ```
 
-The stages order themselves, so one run converges even after editing a YAML or
-deleting `examples/out` entirely. Name the package, not a file: `go test
+The stages order themselves, so one run converges from any starting point: an
+edited YAML, a deleted fixture directory, or an example removed altogether,
+which is dropped from every stage below it. Name the package, not a file: `go test
 examples_test.go -update` compiles that file alone, quietly regenerating the
 envelopes and nothing else, and `-validate` is not even defined there.
 

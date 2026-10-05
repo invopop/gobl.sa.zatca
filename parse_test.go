@@ -23,14 +23,18 @@ func getParsePath() string {
 	return filepath.Join("test", "data", "parse")
 }
 
-// TestParse reads back every document TestConvert produced and compares the
-// invoice against its golden envelope. Its input is the conversion's output, so
-// the two tests together cover the round trip: a GOBL example out to ZATCA and
-// back again.
+// TestParse reads back every document under test/data/parse and compares the
+// invoice against its golden envelope. Those documents are what the conversion
+// produced, copied in when the goldens are updated, so the two tests together
+// cover the round trip: a GOBL example out to ZATCA and back again.
 func TestParse(t *testing.T) {
-	examples, err := filepath.Glob(filepath.Join(getConvertPath(), "out", "*.xml"))
+	if *update {
+		copyStageInput(t, filepath.Join(getConvertPath(), "out"), xmlPattern, getParsePath())
+	}
+
+	examples, err := filepath.Glob(filepath.Join(getParsePath(), xmlPattern))
 	require.NoError(t, err)
-	require.NotEmpty(t, examples, "no converted documents found")
+	require.NotEmpty(t, examples, "no documents found in %s", getParsePath())
 
 	for _, example := range examples {
 		inName := filepath.Base(example)
@@ -71,6 +75,14 @@ func TestParse(t *testing.T) {
 
 			assert.JSONEq(t, string(expectedData), string(out), "Invoice should match the expected JSON. Update with -update flag.")
 		})
+	}
+
+	if *update {
+		keep := make(map[string]bool, len(examples))
+		for _, example := range examples {
+			keep[strings.Replace(filepath.Base(example), ".xml", ".json", 1)] = true
+		}
+		pruneStale(t, filepath.Join(getParsePath(), "out"), jsonPattern, keep)
 	}
 }
 
