@@ -1,10 +1,10 @@
 {
 	"$schema": "https://gobl.org/draft-0/envelope",
 	"head": {
-		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
 		"dig": {
 			"alg": "sha256",
-			"val": "bb92300caa8103b337652755f5f20d5161cc0b1d2feb22916c985ca61b075c8e"
+			"val": "aebf1eba4addf3754388c812c6533a1ea662ab13bb3b2b41148026a09f34de53"
 		}
 	},
 	"doc": {
@@ -17,7 +17,7 @@
 		"$tags": [
 			"simplified"
 		],
-		"uuid": "8d487816-70b8-4ade-a618-9d620b73814a",
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
 		"type": "standard",
 		"code": "123456",
 		"issue_date": "2022-09-07",
@@ -33,7 +33,7 @@
 				{
 					"cat": "VAT",
 					"key": "zero",
-					"text": "Medicines",
+					"text": "Medicines and medical equipment",
 					"ext": {
 						"untdid-tax-category": "Z"
 					}
