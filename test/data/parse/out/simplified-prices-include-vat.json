@@ -1,0 +1,241 @@
+{
+	"$schema": "https://gobl.org/draft-0/envelope",
+	"head": {
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
+		"dig": {
+			"alg": "sha256",
+			"val": "15240dcbf1bc7b1e87f6aa2bd6a921f967cb0d70b666c71a558abcb2957b498b"
+		}
+	},
+	"doc": {
+		"$schema": "https://gobl.org/draft-0/bill/invoice",
+		"$regime": "SA",
+		"$addons": [
+			"eu-en16931-v2017",
+			"sa-zatca-v1"
+		],
+		"$tags": [
+			"simplified"
+		],
+		"uuid": "01a10c1f-2f1e-7b16-ba74-035e7f3fb728",
+		"type": "standard",
+		"code": "TEST-00002",
+		"issue_date": "2026-10-05",
+		"issue_time": "15:52:12",
+		"currency": "SAR",
+		"tax": {
+			"rounding": "currency",
+			"ext": {
+				"sa-zatca-invoice-type": "0200000",
+				"untdid-document-type": "388"
+			}
+		},
+		"supplier": {
+			"name": "Sample Payments Saudi LTD",
+			"tax_id": {
+				"country": "SA",
+				"code": "399999999900003"
+			},
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "4030123456"
+				}
+			],
+			"addresses": [
+				{
+					"num": "1234",
+					"street": "King Fahd Road 1234",
+					"street_extra": "Al Olaya",
+					"locality": "Riyadh",
+					"code": "12643",
+					"country": "SA"
+				}
+			]
+		},
+		"customer": {
+			"name": "Sample Consumer LLC",
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "1010567890"
+				}
+			],
+			"addresses": [
+				{
+					"num": "4321",
+					"street": "Northern Ring Br Rd 4321",
+					"street_extra": "Al Nakheel",
+					"locality": "Riyadh",
+					"region": "Riyadh",
+					"code": "13511",
+					"country": "SA"
+				}
+			]
+		},
+		"lines": [
+			{
+				"i": 1,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Online",
+					"price": "871.5652",
+					"unit": "piece",
+					"ext": {
+						"untdid-unit": "H87"
+					}
+				},
+				"sum": "871.57",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "871.57"
+			},
+			{
+				"i": 2,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Online",
+					"price": "8.6957",
+					"unit": "piece",
+					"ext": {
+						"untdid-unit": "H87"
+					}
+				},
+				"sum": "8.70",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "8.70"
+			},
+			{
+				"i": 3,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Terminal",
+					"price": "289.8522",
+					"unit": "piece",
+					"ext": {
+						"untdid-unit": "H87"
+					}
+				},
+				"sum": "289.85",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "289.85"
+			},
+			{
+				"i": 4,
+				"quantity": "1",
+				"item": {
+					"name": "Processing fee",
+					"price": "0.0435",
+					"unit": "piece",
+					"ext": {
+						"untdid-unit": "H87"
+					}
+				},
+				"sum": "0.04",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "0.04"
+			},
+			{
+				"i": 5,
+				"quantity": "1",
+				"item": {
+					"name": "Monthly subscription",
+					"price": "869.5565",
+					"unit": "piece",
+					"ext": {
+						"untdid-unit": "H87"
+					}
+				},
+				"sum": "869.56",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "869.56"
+			}
+		],
+		"payment": {
+			"terms": {
+				"notes": "Payment on receipt of invoice"
+			},
+			"instructions": {
+				"key": "debit-transfer",
+				"ext": {
+					"untdid-payment-means": "31"
+				}
+			}
+		},
+		"delivery": {
+			"date": "2026-10-05"
+		},
+		"totals": {
+			"sum": "2039.72",
+			"total": "2039.72",
+			"taxes": {
+				"categories": [
+					{
+						"code": "VAT",
+						"rates": [
+							{
+								"key": "standard",
+								"ext": {
+									"untdid-tax-category": "S"
+								},
+								"base": "2039.72",
+								"percent": "15.0%",
+								"amount": "305.96"
+							}
+						],
+						"amount": "305.96"
+					}
+				],
+				"sum": "305.96"
+			},
+			"tax": "305.96",
+			"total_with_tax": "2345.68",
+			"rounding": "-0.01",
+			"payable": "2345.67"
+		}
+	}
+}

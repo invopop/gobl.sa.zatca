@@ -18,9 +18,12 @@ extensions (BR-KSA-* rules). It covers both standard tax invoices (B2B/B2G,
 sent for clearance) and simplified tax invoices (B2C, sent for reporting)
 through the FATOORA platform.
 
-Unlike the format converters in the GOBL ecosystem, this is a true **addon**:
+The module is two things at once. The `addon/` subpackage is a true **addon**:
 it registers extensions, normalizers, and validation rules into GOBL's global
-registry. It lives in its own module so that only projects handling Saudi
+registry, and is kept dependency-light. The module root is the **converter**,
+turning GOBL documents into ZATCA UBL 2.1 and back, built on top of
+[gobl.ubl](https://github.com/invopop/gobl.ubl) for the generic EN 16931
+plumbing. It lives in its own module so that only projects handling Saudi
 Arabia ZATCA documents take on its weight.
 
 The Saudi Arabia tax regime itself (`regimes/sa`) continues to live in GOBL
@@ -42,8 +45,7 @@ the export, summary, nominal, third-party and self-billed variants.
 - `addon/` — the GOBL addon: extensions, normalizers, scenarios, and
   validation rules that register into GOBL on import. This package is kept
   dependency-light so importing it never pulls in conversion tooling.
-- the module root (and future subpackages) is reserved for converters and
-  other ZATCA logic built on top of the addon.
+- the module root — the GOBL ⇄ ZATCA UBL converter, which pulls in gobl.ubl.
 
 ## Usage
 
@@ -66,6 +68,33 @@ Declare the addon on a document (or let the regime/scenario add it) and
 > declaring `sa-zatca-v1` will fail validation with `add-on must be
 > registered` unless this module is imported. Any service that processes
 > Saudi Arabia ZATCA documents must import it.
+
+## Conversion
+
+`Convert` builds the ZATCA document, `Bytes` renders it:
+
+```go
+import (
+	"github.com/invopop/gobl"
+	zatca "github.com/invopop/gobl.sa.zatca"
+)
+
+doc, err := zatca.ConvertInvoice(env)
+data, err := zatca.Bytes(doc)
+```
+
+An incoming ZATCA document goes the other way:
+
+```go
+doc, err := zatca.ParseInvoice(data)
+env, err := doc.Convert()
+```
+
+The converter runs the generic EN 16931 mapping in gobl.ubl and reworks the
+result into ZATCA Phase 2: the KSA-2 transaction type, the document UUID and
+issue time, the SAR accounting currency and its repeated tax total, the KSA
+address fields, the line VAT amounts (KSA-11/KSA-12), and the credit and debit
+notes ZATCA carries in a UBL `Invoice` rather than a `CreditNote`.
 
 ## Extensions
 
@@ -103,27 +132,74 @@ messages reference the underlying `BR-KSA-*` business rules.
 
 ## Development
 
-The addon builds on core GOBL features (the approved external-addon registry
-and `pkg/examples` helpers) that are not yet in a tagged release. The
-`go.mod` therefore pins `github.com/invopop/gobl` to a commit on the
-`addon-sa` branch (a pseudo-version); bump it to the release tag once core is
-published.
-
 ```sh
 go test ./...
 ```
 
+### Schematron validation
+
+Beyond the golden-file comparisons, every converted document can be pushed
+through ZATCA's own schematron rule set. Validation runs against
+[phorm](https://github.com/phax/phorm), the standalone validation service.
+Start one locally:
+
+```sh
+docker run -d --name phorm -p 8080:8080 phelger/phorm
+```
+
+Use `phelger/phorm-arm64` on Apple Silicon. It takes a few seconds to boot; it
+is ready once this returns HTTP 200:
+
+```sh
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -H 'X-Token: phorm-dev-token' \
+  'http://localhost:8080/api/get/vesids?include-deprecated=true'
+```
+
+Then run the suite with `-validate`:
+
+```sh
+go test . -validate
+```
+
+Without `-validate` the validating tests are skipped, so the plain `go test
+./...` never needs a service. `PHORM_URL` and `PHORM_TOKEN` override the
+defaults (`http://localhost:8080` and phorm's stock development token).
+
+#### Known failures
+
+`BR-KSA-33` fails on every document: the invoice counter value (KSA-16) is
+stamped by the application when the document is submitted, not carried in
+GOBL, so a converted document never has one. The test ignores it by name.
+
 ### Examples
 
 `examples/` holds sample documents covering standard, simplified, credit /
-debit notes, self-billed and foreign-currency invoices, with their expected
-JSON envelopes under `examples/out/`. They are verified via GOBL's shared
-`pkg/examples` helpers. Regenerate the golden output after intentional
-changes with:
+debit notes, self-billed, exempt, tax-inclusive and foreign-currency invoices.
+Each stage feeds the next, so a document is carried all the way out to ZATCA
+and back:
+
+| Stage | Test | In | Out |
+| --- | --- | --- | --- |
+| Build | `TestExamples` | `examples/*.yaml` | `examples/out/*.json` |
+| Convert | `TestConvert` | `test/data/convert/*.json` | `test/data/convert/out/*.xml` |
+| Parse | `TestParse` | `test/data/parse/*.xml` | `test/data/parse/out/*.json` |
+
+Each stage keeps its own input beside its output, so a fixture directory shows
+what went in as well as what came out. The inputs are copies of the previous
+stage's output, refreshed on update, which is what ties the chain together:
+`examples/` stays GOBL-only, and an example added there is covered end to end.
+Regenerate every golden after an intentional change with:
 
 ```sh
-go test . -run TestExamples -update
+go test . -update
 ```
+
+The stages order themselves, so one run converges from any starting point: an
+edited YAML, a deleted fixture directory, or an example removed altogether,
+which is dropped from every stage below it. Name the package, not a file: `go test
+examples_test.go -update` compiles that file alone, quietly regenerating the
+envelopes and nothing else, and `-validate` is not even defined there.
 
 ## Sources
 
