@@ -187,13 +187,16 @@ and back:
 
 Nothing is copied between stages: each test reads the previous one's golden
 directory, so `examples/` stays GOBL-only and an example added there is covered
-end to end. Regenerate the goldens in order after an intentional change:
+end to end. Regenerate every golden after an intentional change with:
 
 ```sh
-go test . -run TestExamples -update
-go test . -run TestConvert -update
-go test . -run TestParse -update
+go test . -update
 ```
+
+The stages order themselves, so one run converges even after editing a YAML or
+deleting `examples/out` entirely. Name the package, not a file: `go test
+examples_test.go -update` compiles that file alone, quietly regenerating the
+envelopes and nothing else, and `-validate` is not even defined there.
 
 ## Sources
 

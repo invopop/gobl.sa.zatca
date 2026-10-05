@@ -9,6 +9,7 @@ import (
 
 	"github.com/invopop/gobl"
 	zatca "github.com/invopop/gobl.sa.zatca"
+	"github.com/invopop/gobl/pkg/examples"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -40,6 +41,8 @@ type convertCase struct {
 // reads back in turn.
 func convertCases(t *testing.T) []convertCase {
 	t.Helper()
+	regenerateExamples(t)
+
 	found, err := filepath.Glob(filepath.Join(getExamplePath(), jsonPattern))
 	require.NoError(t, err)
 	require.NotEmpty(t, found, "no envelopes found in %s", getExamplePath())
@@ -87,5 +90,28 @@ func TestConvert(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, string(output), string(data), "Output should match the expected XML. Update with -update flag.")
 		})
+	}
+}
+
+// regenerateExamples rebuilds the envelopes the conversion reads from, when the
+// goldens are being updated. The chain has to run in order and Go does not:
+// test files compile alphabetically, so TestConvert runs before TestExamples
+// and would otherwise convert the envelopes as they stood before the run.
+func regenerateExamples(t *testing.T) {
+	t.Helper()
+	if !*update {
+		return
+	}
+	sources, err := examples.Sources("examples")
+	require.NoError(t, err)
+	require.NotEmpty(t, sources, "no example sources found")
+	for _, src := range sources {
+		data, err := os.ReadFile(src)
+		require.NoError(t, err)
+		out, err := examples.Convert(data, examples.IsEnvelope(src))
+		require.NoError(t, err, "converting %s", src)
+		golden := examples.GoldenPath(src)
+		require.NoError(t, os.MkdirAll(filepath.Dir(golden), 0o755))
+		require.NoError(t, os.WriteFile(golden, out, 0o644))
 	}
 }
