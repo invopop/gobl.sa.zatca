@@ -1,0 +1,77 @@
+$schema: "https://gobl.org/draft-0/bill/invoice"
+$addons: ["sa-zatca-v1"]
+uuid: "6d0ad1e1-9c0e-4a9b-8f2b-6c5a1d8e4f30"
+issue_date: "2024-04-02"
+issue_time: "17:45:00"
+code: "INCL-001"
+regime: "SA"
+type: "standard"
+$tags:
+  - simplified
+
+tax:
+  prices_include: "VAT"
+
+supplier:
+  tax_id:
+    country: "SA"
+    code: "399999999900003"
+  name: "شركة توريد التكنولوجيا بأقصى سرعة المحدودة | Maximum Speed Tech Supply LTD"
+  identities:
+    - type: "CRN"
+      code: "1010010000"
+  addresses:
+    - street: "الامير سلطان | Prince Sultan"
+      street_extra: "المربع | Al-Murabba"
+      num: "2322"
+      locality: "الرياض | Riyadh"
+      code: "23333"
+      country: "SA"
+
+lines:
+  - i: 1
+    quantity: "1"
+    item:
+      name: "Card payments: Online"
+      price: "1002.30"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 2
+    quantity: "1"
+    item:
+      name: "Card payments: Terminal"
+      price: "10.00"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 3
+    quantity: "1"
+    item:
+      name: "Hair treatment"
+      price: "333.33"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 4
+    quantity: "1"
+    item:
+      name: "Processing fee"
+      price: "0.05"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 5
+    quantity: "1"
+    item:
+      name: "Monthly subscription"
+      price: "999.99"
+    taxes:
+      - cat: VAT
+        rate: standard
+
+payment:
+  instructions:
+    key: "credit-transfer"
+  terms:
+    notes: "Payment due within 30 days"

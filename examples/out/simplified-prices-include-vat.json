@@ -1,0 +1,209 @@
+{
+	"$schema": "https://gobl.org/draft-0/envelope",
+	"head": {
+		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
+		"dig": {
+			"alg": "sha256",
+			"val": "429fc4455b01000ba85d566c57f2116909b73010f56d2c8ea899d0980bbddecf"
+		}
+	},
+	"doc": {
+		"$schema": "https://gobl.org/draft-0/bill/invoice",
+		"$regime": "SA",
+		"$addons": [
+			"eu-en16931-v2017",
+			"sa-zatca-v1"
+		],
+		"$tags": [
+			"simplified"
+		],
+		"uuid": "6d0ad1e1-9c0e-4a9b-8f2b-6c5a1d8e4f30",
+		"type": "standard",
+		"code": "INCL-001",
+		"issue_date": "2024-04-02",
+		"issue_time": "17:45:00",
+		"currency": "SAR",
+		"tax": {
+			"prices_include": "VAT",
+			"rounding": "currency",
+			"ext": {
+				"sa-zatca-invoice-type": "0200000",
+				"untdid-document-type": "388"
+			}
+		},
+		"supplier": {
+			"name": "شركة توريد التكنولوجيا بأقصى سرعة المحدودة | Maximum Speed Tech Supply LTD",
+			"tax_id": {
+				"country": "SA",
+				"code": "399999999900003"
+			},
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "1010010000"
+				}
+			],
+			"addresses": [
+				{
+					"num": "2322",
+					"street": "الامير سلطان | Prince Sultan",
+					"street_extra": "المربع | Al-Murabba",
+					"locality": "الرياض | Riyadh",
+					"code": "23333",
+					"country": "SA"
+				}
+			]
+		},
+		"lines": [
+			{
+				"i": 1,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Online",
+					"price": "1002.30",
+					"unit": "one"
+				},
+				"sum": "1002.30",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "1002.30"
+			},
+			{
+				"i": 2,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Terminal",
+					"price": "10.00",
+					"unit": "one"
+				},
+				"sum": "10.00",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "10.00"
+			},
+			{
+				"i": 3,
+				"quantity": "1",
+				"item": {
+					"name": "Hair treatment",
+					"price": "333.33",
+					"unit": "one"
+				},
+				"sum": "333.33",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "333.33"
+			},
+			{
+				"i": 4,
+				"quantity": "1",
+				"item": {
+					"name": "Processing fee",
+					"price": "0.05",
+					"unit": "one"
+				},
+				"sum": "0.05",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "0.05"
+			},
+			{
+				"i": 5,
+				"quantity": "1",
+				"item": {
+					"name": "Monthly subscription",
+					"price": "999.99",
+					"unit": "one"
+				},
+				"sum": "999.99",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "999.99"
+			}
+		],
+		"payment": {
+			"terms": {
+				"notes": "Payment due within 30 days"
+			},
+			"instructions": {
+				"key": "credit-transfer",
+				"ext": {
+					"untdid-payment-means": "30"
+				}
+			}
+		},
+		"totals": {
+			"sum": "2345.67",
+			"tax_included": "305.96",
+			"total": "2039.71",
+			"taxes": {
+				"categories": [
+					{
+						"code": "VAT",
+						"rates": [
+							{
+								"key": "standard",
+								"ext": {
+									"untdid-tax-category": "S"
+								},
+								"base": "2039.71",
+								"percent": "15.0%",
+								"amount": "305.96"
+							}
+						],
+						"amount": "305.96"
+					}
+				],
+				"sum": "305.96"
+			},
+			"tax": "305.96",
+			"total_with_tax": "2345.67",
+			"payable": "2345.67"
+		}
+	}
+}

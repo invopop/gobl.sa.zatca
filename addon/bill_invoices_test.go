@@ -44,8 +44,8 @@ func validStandardInvoice() *bill.Invoice {
 		Delivery: &bill.DeliveryDetails{
 			Date: cal.NewDate(2024, 6, 15),
 			Period: &cal.Period{
-				Start: cal.MakeDate(2024, 6, 1),
-				End:   cal.MakeDate(2024, 6, 30),
+				Start: cal.NewDate(2024, 6, 1),
+				End:   cal.NewDate(2024, 6, 30),
 			},
 		},
 		Payment: &bill.PaymentDetails{
@@ -600,14 +600,14 @@ func TestSimplifiedSummaryRequirements(t *testing.T) {
 	// validation fails when either bound is missing.
 	t.Run("delivery period start missing fails (BR-KSA-72)", func(t *testing.T) {
 		inv := build()
-		inv.Delivery.Period.Start = cal.Date{}
+		inv.Delivery.Period.Start = nil
 		require.NoError(t, inv.Calculate())
 		assert.Error(t, rules.Validate(inv))
 	})
 
 	t.Run("delivery period end missing fails (BR-KSA-72)", func(t *testing.T) {
 		inv := build()
-		inv.Delivery.Period.End = cal.Date{}
+		inv.Delivery.Period.End = nil
 		require.NoError(t, inv.Calculate())
 		assert.Error(t, rules.Validate(inv))
 	})

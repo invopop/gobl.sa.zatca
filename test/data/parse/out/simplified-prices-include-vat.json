@@ -1,0 +1,218 @@
+{
+	"$schema": "https://gobl.org/draft-0/envelope",
+	"head": {
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
+		"dig": {
+			"alg": "sha256",
+			"val": "e9c3ca3e9933d64d34fbacef3a703d4ec38fcf68839df313d96fab06dfb8acf4"
+		}
+	},
+	"doc": {
+		"$schema": "https://gobl.org/draft-0/bill/invoice",
+		"$regime": "SA",
+		"$addons": [
+			"eu-en16931-v2017",
+			"sa-zatca-v1"
+		],
+		"$tags": [
+			"simplified"
+		],
+		"uuid": "6d0ad1e1-9c0e-4a9b-8f2b-6c5a1d8e4f30",
+		"type": "standard",
+		"code": "INCL-001",
+		"issue_date": "2024-04-02",
+		"issue_time": "17:45:00",
+		"currency": "SAR",
+		"tax": {
+			"rounding": "currency",
+			"ext": {
+				"sa-zatca-invoice-type": "0200000",
+				"untdid-document-type": "388"
+			}
+		},
+		"supplier": {
+			"name": "شركة توريد التكنولوجيا بأقصى سرعة المحدودة | Maximum Speed Tech Supply LTD",
+			"tax_id": {
+				"country": "SA",
+				"code": "399999999900003"
+			},
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "1010010000"
+				}
+			],
+			"addresses": [
+				{
+					"num": "2322",
+					"street": "الامير سلطان | Prince Sultan 2322",
+					"street_extra": "المربع | Al-Murabba",
+					"locality": "الرياض | Riyadh",
+					"code": "23333",
+					"country": "SA"
+				}
+			]
+		},
+		"lines": [
+			{
+				"i": 1,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Online",
+					"price": "871.5652",
+					"unit": "one",
+					"ext": {
+						"untdid-unit": "C62"
+					}
+				},
+				"sum": "871.57",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "871.57"
+			},
+			{
+				"i": 2,
+				"quantity": "1",
+				"item": {
+					"name": "Card payments: Terminal",
+					"price": "8.6957",
+					"unit": "one",
+					"ext": {
+						"untdid-unit": "C62"
+					}
+				},
+				"sum": "8.70",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "8.70"
+			},
+			{
+				"i": 3,
+				"quantity": "1",
+				"item": {
+					"name": "Hair treatment",
+					"price": "289.8522",
+					"unit": "one",
+					"ext": {
+						"untdid-unit": "C62"
+					}
+				},
+				"sum": "289.85",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "289.85"
+			},
+			{
+				"i": 4,
+				"quantity": "1",
+				"item": {
+					"name": "Processing fee",
+					"price": "0.0435",
+					"unit": "one",
+					"ext": {
+						"untdid-unit": "C62"
+					}
+				},
+				"sum": "0.04",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "0.04"
+			},
+			{
+				"i": 5,
+				"quantity": "1",
+				"item": {
+					"name": "Monthly subscription",
+					"price": "869.5565",
+					"unit": "one",
+					"ext": {
+						"untdid-unit": "C62"
+					}
+				},
+				"sum": "869.56",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "869.56"
+			}
+		],
+		"payment": {
+			"terms": {
+				"notes": "Payment due within 30 days"
+			},
+			"instructions": {
+				"key": "credit-transfer",
+				"ext": {
+					"untdid-payment-means": "30"
+				}
+			}
+		},
+		"totals": {
+			"sum": "2039.72",
+			"total": "2039.72",
+			"taxes": {
+				"categories": [
+					{
+						"code": "VAT",
+						"rates": [
+							{
+								"key": "standard",
+								"ext": {
+									"untdid-tax-category": "S"
+								},
+								"base": "2039.72",
+								"percent": "15.0%",
+								"amount": "305.96"
+							}
+						],
+						"amount": "305.96"
+					}
+				],
+				"sum": "305.96"
+			},
+			"tax": "305.96",
+			"total_with_tax": "2345.68",
+			"rounding": "-0.01",
+			"payable": "2345.67"
+		}
+	}
+}
