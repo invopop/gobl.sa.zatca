@@ -1,5 +1,5 @@
-// Package ubl adds the ZATCA UBL context on top of the gobl.ubl base
-// conversion, and registers it with gobl.ubl and the GOBL convert register.
+// Package ubl adds the ZATCA UBL format on top of the gobl.ubl base import
+// and export, and registers it with gobl.ubl and the GOBL convert register.
 // Import it for its side effects:
 //
 //	import _ "github.com/invopop/gobl.sa.zatca/ubl"
@@ -15,11 +15,11 @@ import (
 	"github.com/invopop/gobl/schema"
 )
 
-// KeyZATCA identifies the ZATCA context.
+// KeyZATCA identifies the ZATCA format.
 const KeyZATCA cbc.Key = "ubl+sa-zatca-v1"
 
-// ContextZATCA defines the context for Saudi Arabia ZATCA Phase 2 e-invoicing.
-var ContextZATCA = goblubl.Context{
+// FormatZATCA defines the format for Saudi Arabia ZATCA Phase 2 e-invoicing.
+var FormatZATCA = goblubl.Format{
 	Key:             KeyZATCA,
 	Name:            i18n.NewString("UBL ZATCA"),
 	Countries:       []l10n.Code{l10n.SA},
@@ -31,9 +31,10 @@ var ContextZATCA = goblubl.Context{
 		Invoice:    "sa.zatca:ubl-invoice:2.3.8",
 		CreditNote: "sa.zatca:ubl-invoice:2.3.8",
 	},
-	Layers: []*goblubl.Layer{LayerZATCA},
+	ExportFuncs: []goblubl.ExportFunc{exportZATCA},
+	ImportFuncs: []goblubl.ImportFunc{importZATCA},
 }
 
 func init() {
-	goblubl.RegisterContexts(ContextZATCA)
+	goblubl.RegisterFormats(FormatZATCA)
 }

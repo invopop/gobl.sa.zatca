@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestContext(t *testing.T) {
-	ctx := convert.ContextFor(zatcaubl.KeyZATCA)
+func TestFormat(t *testing.T) {
+	ctx := convert.FormatFor(zatcaubl.KeyZATCA)
 	require.NotNil(t, ctx)
 	assert.Equal(t, cbc.Key("ubl"), ctx.Syntax)
 	assert.Contains(t, ctx.Addons, zatca.V1)
 
 	keys := make([]cbc.Key, 0)
-	for _, c := range convert.ContextsFor("SA") {
+	for _, c := range convert.FormatsFor("SA") {
 		keys = append(keys, c.Key)
 	}
 	assert.Contains(t, keys, zatcaubl.KeyZATCA)
@@ -44,7 +44,7 @@ func TestExport(t *testing.T) {
 	env := loadTestEnvelope(t, "zatca/standard-credit-note.json")
 	out, err := convert.Export(env, zatcaubl.KeyZATCA)
 	require.NoError(t, err)
-	assert.Equal(t, zatcaubl.KeyZATCA, out.Context.Key)
+	assert.Equal(t, zatcaubl.KeyZATCA, out.Format.Key)
 	assert.Contains(t, string(out.Data), "<Invoice", "credit notes are written as invoices")
 
 	ctx, err := convert.Detect(out.Data)

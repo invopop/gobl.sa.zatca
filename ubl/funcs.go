@@ -3,6 +3,7 @@ package ubl
 import (
 	"encoding/xml"
 
+	"github.com/invopop/gobl"
 	zatca "github.com/invopop/gobl.sa.zatca/addon"
 	goblubl "github.com/invopop/gobl.ubl"
 	"github.com/invopop/gobl/bill"
@@ -11,40 +12,69 @@ import (
 	"github.com/invopop/gobl/tax"
 )
 
-// LayerZATCA applies the ZATCA rules on top of the base conversion.
-var LayerZATCA = &goblubl.Layer{
-	ConvertInvoice: convertInvoice,
-	ConvertParty: func(_ *goblubl.Context, p *org.Party, out *goblubl.Party) {
-		// The VAT number is given without its country prefix.
-		if p.TaxID != nil && p.TaxID.Code != "" && len(out.PartyTaxScheme) > 0 {
-			id := out.PartyTaxScheme[0].CompanyID
-			id.Value = id.Value[2:]
-		}
-		if len(p.Addresses) > 0 && out.PostalAddress != nil {
-			convertAddress(p.Addresses[0], out.PostalAddress)
-		}
-	},
-	ParseParty: func(_ *goblubl.Context, in *goblubl.Party, out *org.Party) {
-		// ZATCA identities are described by their type, without an ISO
-		// scheme extension. They are the last identities parsed.
-		ids := make([]*goblubl.IDType, 0, len(in.PartyIdentification))
-		for _, pi := range in.PartyIdentification {
-			if pi.ID != nil {
-				ids = append(ids, pi.ID)
-			}
-		}
-		parsed := out.Identities[len(out.Identities)-len(ids):]
-		for i, id := range ids {
-			if id.SchemeID != nil {
-				parsed[i].Type = cbc.Code(*id.SchemeID)
-				parsed[i].Ext = tax.Extensions{}
-			}
-		}
-	},
-	ParseInvoice: parseInvoice,
+// invoices provides the GOBL and UBL invoices of an export or import, if
+// both are invoices.
+func invoices(env *gobl.Envelope, doc goblubl.Document) (*bill.Invoice, *goblubl.Invoice, bool) {
+	inv, ok := env.Extract().(*bill.Invoice)
+	out, ok2 := doc.(*goblubl.Invoice)
+	return inv, out, ok && ok2
 }
 
-func convertInvoice(_ *goblubl.Context, inv *bill.Invoice, out *goblubl.Invoice) error {
+// exportZATCA applies the ZATCA rules to an exported invoice.
+func exportZATCA(_ *goblubl.Format, env *gobl.Envelope, doc goblubl.Document) error {
+	inv, out, ok := invoices(env, doc)
+	if !ok {
+		return nil
+	}
+	for _, p := range goblubl.InvoiceParties(inv, out) {
+		exportParty(p.GOBL, p.UBL)
+	}
+	return exportInvoice(inv, out)
+}
+
+// exportParty gives the VAT number without its country prefix, and the
+// address in the ZATCA layout.
+func exportParty(p *org.Party, out *goblubl.Party) {
+	if p.TaxID != nil && p.TaxID.Code != "" && len(out.PartyTaxScheme) > 0 {
+		id := out.PartyTaxScheme[0].CompanyID
+		id.Value = id.Value[2:]
+	}
+	if len(p.Addresses) > 0 && out.PostalAddress != nil {
+		convertAddress(p.Addresses[0], out.PostalAddress)
+	}
+}
+
+// importZATCA applies the ZATCA rules to an imported invoice.
+func importZATCA(_ *goblubl.Format, doc goblubl.Document, env *gobl.Envelope) error {
+	inv, in, ok := invoices(env, doc)
+	if !ok {
+		return nil
+	}
+	for _, p := range goblubl.InvoiceParties(inv, in) {
+		importParty(p.UBL, p.GOBL)
+	}
+	return importInvoice(in, inv)
+}
+
+// importParty describes ZATCA identities by their type, without an ISO scheme
+// extension. They are the last identities parsed.
+func importParty(in *goblubl.Party, out *org.Party) {
+	ids := make([]*goblubl.IDType, 0, len(in.PartyIdentification))
+	for _, pi := range in.PartyIdentification {
+		if pi.ID != nil {
+			ids = append(ids, pi.ID)
+		}
+	}
+	parsed := out.Identities[len(out.Identities)-len(ids):]
+	for i, id := range ids {
+		if id.SchemeID != nil {
+			parsed[i].Type = cbc.Code(*id.SchemeID)
+			parsed[i].Ext = tax.Extensions{}
+		}
+	}
+}
+
+func exportInvoice(inv *bill.Invoice, out *goblubl.Invoice) error {
 	// ZATCA treats all documents as invoices.
 	if out.CreditNoteTypeCode != nil {
 		creditNoteAsInvoice(inv, out)
@@ -146,7 +176,7 @@ func convertAddress(a *org.Address, out *goblubl.PostalAddress) {
 	out.BuildingNumber = &a.Number
 }
 
-func parseInvoice(_ *goblubl.Context, in *goblubl.Invoice, out *bill.Invoice) error {
+func importInvoice(in *goblubl.Invoice, out *bill.Invoice) error {
 	if tc := in.InvoiceTypeCode; tc != nil && tc.Name != nil {
 		out.Tax.Ext = out.Tax.Ext.Set(zatca.ExtKeyInvoiceType, cbc.Code(*tc.Name))
 	}
