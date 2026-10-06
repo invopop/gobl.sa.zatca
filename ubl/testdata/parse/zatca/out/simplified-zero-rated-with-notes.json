@@ -1,10 +1,10 @@
 {
 	"$schema": "https://gobl.org/draft-0/envelope",
 	"head": {
-		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
 		"dig": {
 			"alg": "sha256",
-			"val": "bb92300caa8103b337652755f5f20d5161cc0b1d2feb22916c985ca61b075c8e"
+			"val": "c1987331138a7dbd7347e8833c823dba4b12be86f5f3d54b6a86f8c1789e7554"
 		}
 	},
 	"doc": {
@@ -17,7 +17,7 @@
 		"$tags": [
 			"simplified"
 		],
-		"uuid": "8d487816-70b8-4ade-a618-9d620b73814a",
+		"uuid": "0195ce71-dc9c-72c8-bf2c-9890a4a9f0a2",
 		"type": "standard",
 		"code": "123456",
 		"issue_date": "2022-09-07",
@@ -55,7 +55,7 @@
 			"addresses": [
 				{
 					"num": "2322",
-					"street": "الامير سلطان | Prince Sultan",
+					"street": "الامير سلطان | Prince Sultan 2322",
 					"street_extra": "المربع | Al-Murabba",
 					"locality": "الرياض | Riyadh",
 					"code": "23333",
@@ -103,7 +103,6 @@
 					{
 						"cat": "VAT",
 						"key": "standard",
-						"rate": "general",
 						"percent": "15.0%",
 						"ext": {
 							"untdid-tax-category": "S"
