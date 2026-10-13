@@ -63,7 +63,7 @@ func TestConvertExamples(t *testing.T) {
 						require.NoError(t, err)
 						inv, ok := env.Extract().(*bill.Invoice)
 						require.True(t, ok, "Document should be an invoice")
-						validateXML(t, pc, ec.format.GetVESID(inv), data)
+						validateXML(t, pc, ec.format.VESID(inv), data)
 					}
 
 					output, err := os.ReadFile(outPath)
