@@ -8,6 +8,7 @@ import (
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/convert"
+	"github.com/invopop/gobl/l10n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ func TestFormat(t *testing.T) {
 	ctx := convert.FormatFor(zatcaubl.KeyZATCA)
 	require.NotNil(t, ctx)
 	assert.Equal(t, cbc.Key("ubl"), ctx.Syntax)
-	assert.Contains(t, ctx.Addons, zatca.V1)
+	assert.Contains(t, ctx.Countries, l10n.SA)
 
 	keys := make([]cbc.Key, 0)
 	for _, c := range convert.FormatsFor("SA") {
