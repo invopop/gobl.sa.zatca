@@ -1,0 +1,222 @@
+{
+	"$schema": "https://gobl.org/draft-0/envelope",
+	"head": {
+		"uuid": "8a51fd30-2a27-11ee-be56-0242ac120002",
+		"dig": {
+			"alg": "sha256",
+			"val": "cb6e4636b4dc19c748d3fae293d753ff834d81459c2a89c4791b1f49a64f864a"
+		}
+	},
+	"doc": {
+		"$schema": "https://gobl.org/draft-0/bill/invoice",
+		"$regime": "SA",
+		"$addons": [
+			"eu-en16931-v2017",
+			"sa-zatca-v1"
+		],
+		"uuid": "0d3d4f0a-7f2c-4a1e-9a6e-2f2d0f7d5c11",
+		"type": "standard",
+		"code": "EXEMPT-001",
+		"issue_date": "2024-03-11",
+		"issue_time": "09:15:00",
+		"currency": "SAR",
+		"tax": {
+			"rounding": "currency",
+			"ext": {
+				"sa-zatca-invoice-type": "0100000",
+				"untdid-document-type": "388"
+			},
+			"notes": [
+				{
+					"cat": "VAT",
+					"key": "exempt",
+					"text": "Financial services mentioned in Article 29 of the VAT Regulations",
+					"ext": {
+						"untdid-tax-category": "E"
+					}
+				},
+				{
+					"cat": "VAT",
+					"key": "outside-scope",
+					"text": "Reason is free text, to be provided by the taxpayer on a case-by-case basis",
+					"ext": {
+						"untdid-tax-category": "O"
+					}
+				}
+			]
+		},
+		"supplier": {
+			"name": "Acme Corp Saudi",
+			"tax_id": {
+				"country": "SA",
+				"code": "312345678912343"
+			},
+			"identities": [
+				{
+					"type": "CRN",
+					"code": "1234567890"
+				}
+			],
+			"addresses": [
+				{
+					"num": "1234",
+					"street": "King Fahd Road",
+					"street_extra": "Al Olaya",
+					"locality": "Riyadh",
+					"region": "Riyadh",
+					"code": "12345",
+					"country": "SA"
+				}
+			]
+		},
+		"customer": {
+			"name": "Sample Consumer LLC",
+			"identities": [
+				{
+					"type": "TIN",
+					"code": "123456789012345"
+				}
+			],
+			"addresses": [
+				{
+					"num": "5678",
+					"street": "Olaya Street",
+					"street_extra": "Al Malaz",
+					"locality": "Riyadh",
+					"region": "Riyadh",
+					"code": "54321",
+					"country": "SA"
+				}
+			]
+		},
+		"lines": [
+			{
+				"i": 1,
+				"quantity": "1",
+				"item": {
+					"name": "Development services",
+					"price": "100.00",
+					"unit": "one"
+				},
+				"sum": "100.00",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "standard",
+						"rate": "general",
+						"percent": "15.0%",
+						"ext": {
+							"untdid-tax-category": "S"
+						}
+					}
+				],
+				"total": "100.00"
+			},
+			{
+				"i": 2,
+				"quantity": "1",
+				"item": {
+					"name": "Life insurance premium",
+					"price": "200.00",
+					"unit": "one"
+				},
+				"sum": "200.00",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "exempt",
+						"ext": {
+							"cef-vatex": "VATEX-SA-29",
+							"untdid-tax-category": "E"
+						}
+					}
+				],
+				"total": "200.00"
+			},
+			{
+				"i": 3,
+				"quantity": "1",
+				"item": {
+					"name": "Government fee",
+					"price": "300.00",
+					"unit": "one"
+				},
+				"sum": "300.00",
+				"taxes": [
+					{
+						"cat": "VAT",
+						"key": "outside-scope",
+						"ext": {
+							"cef-vatex": "VATEX-SA-OOS",
+							"untdid-tax-category": "O"
+						}
+					}
+				],
+				"total": "300.00"
+			}
+		],
+		"payment": {
+			"terms": {
+				"notes": "Payment due within 30 days"
+			},
+			"instructions": {
+				"key": "credit-transfer",
+				"ext": {
+					"untdid-payment-means": "30"
+				}
+			}
+		},
+		"delivery": {
+			"date": "2024-03-11",
+			"period": {
+				"start": "2024-03-01",
+				"end": "2024-03-31"
+			}
+		},
+		"totals": {
+			"sum": "600.00",
+			"total": "600.00",
+			"taxes": {
+				"categories": [
+					{
+						"code": "VAT",
+						"rates": [
+							{
+								"key": "standard",
+								"ext": {
+									"untdid-tax-category": "S"
+								},
+								"base": "100.00",
+								"percent": "15.0%",
+								"amount": "15.00"
+							},
+							{
+								"key": "exempt",
+								"ext": {
+									"cef-vatex": "VATEX-SA-29",
+									"untdid-tax-category": "E"
+								},
+								"base": "200.00",
+								"amount": "0.00"
+							},
+							{
+								"key": "outside-scope",
+								"ext": {
+									"cef-vatex": "VATEX-SA-OOS",
+									"untdid-tax-category": "O"
+								},
+								"base": "300.00",
+								"amount": "0.00"
+							}
+						],
+						"amount": "15.00"
+					}
+				],
+				"sum": "15.00"
+			},
+			"tax": "15.00",
+			"total_with_tax": "615.00",
+			"payable": "615.00"
+		}
+	}
+}

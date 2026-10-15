@@ -1,0 +1,79 @@
+$schema: "https://gobl.org/draft-0/bill/invoice"
+$addons: ["sa-zatca-v1"]
+uuid: "0d3d4f0a-7f2c-4a1e-9a6e-2f2d0f7d5c11"
+issue_date: "2024-03-11"
+issue_time: "09:15:00"
+code: "EXEMPT-001"
+type: "standard"
+regime: "SA"
+
+supplier:
+  tax_id:
+    country: "SA"
+    code: "312345678912343"
+  name: "Acme Corp Saudi"
+  identities:
+    - type: "CRN"
+      code: "1234567890"
+  addresses:
+    - street: "King Fahd Road"
+      street_extra: "Al Olaya"
+      num: "1234"
+      locality: "Riyadh"
+      region: "Riyadh"
+      code: "12345"
+      country: "SA"
+
+customer:
+  identities:
+    - type: "TIN"
+      code: "123456789012345"
+  name: "Sample Consumer LLC"
+  addresses:
+    - street: "Olaya Street"
+      street_extra: "Al Malaz"
+      num: "5678"
+      locality: "Riyadh"
+      region: "Riyadh"
+      code: "54321"
+      country: "SA"
+
+delivery:
+  date: "2024-03-11"
+  period:
+    start: "2024-03-01"
+    end: "2024-03-31"
+
+payment:
+  instructions:
+    key: "credit-transfer"
+  terms:
+    notes: "Payment due within 30 days"
+
+lines:
+  - quantity: 1
+    item:
+      name: "Development services"
+      price: "100.00"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - quantity: 1
+    item:
+      name: "Life insurance premium"
+      price: "200.00"
+    taxes:
+      - cat: VAT
+        rate: exempt
+        ext:
+          untdid-tax-category: "E"
+          cef-vatex: "VATEX-SA-29"
+  - quantity: 1
+    item:
+      name: "Government fee"
+      price: "300.00"
+    taxes:
+      - cat: VAT
+        ext:
+          untdid-tax-category: "O"
+          cef-vatex: "VATEX-SA-OOS"

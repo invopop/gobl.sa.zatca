@@ -2,14 +2,17 @@ package ubl
 
 import (
 	"encoding/xml"
+	"strings"
 
 	"github.com/invopop/gobl"
 	zatca "github.com/invopop/gobl.sa.zatca/addon"
 	goblubl "github.com/invopop/gobl.ubl"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/catalogues/iso"
 	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/org"
 	"github.com/invopop/gobl/tax"
+	"github.com/invopop/gobl/uuid"
 )
 
 // invoices provides the GOBL and UBL invoices of an export or import, if
@@ -35,49 +38,40 @@ func exportZATCA(_ *goblubl.Format, env *gobl.Envelope, doc goblubl.Document) er
 // exportParty gives the VAT number without its country prefix, and the
 // address in the ZATCA layout.
 func exportParty(p *org.Party, out *goblubl.Party) {
-	if p.TaxID != nil && p.TaxID.Code != "" && len(out.PartyTaxScheme) > 0 {
-		id := out.PartyTaxScheme[0].CompanyID
-		id.Value = id.Value[2:]
-	}
+	exportPartyTaxScheme(p, out)
 	if len(p.Addresses) > 0 && out.PostalAddress != nil {
-		convertAddress(p.Addresses[0], out.PostalAddress)
+		exportAddress(p.Addresses[0], out.PostalAddress)
 	}
 }
 
-// importZATCA applies the ZATCA rules to an imported invoice.
-func importZATCA(_ *goblubl.Format, doc goblubl.Document, env *gobl.Envelope) error {
-	inv, in, ok := invoices(env, doc)
-	if !ok {
-		return nil
+// exportPartyTaxScheme drops the country prefix GOBL keeps on a tax identity:
+// the VAT registration number (BT-31) ZATCA expects is the 15 digits alone.
+func exportPartyTaxScheme(p *org.Party, out *goblubl.Party) {
+	if p.TaxID == nil || p.TaxID.Country == "" {
+		return
 	}
-	for _, p := range goblubl.InvoiceParties(inv, in) {
-		importParty(p.UBL, p.GOBL)
+	prefix := p.TaxID.Country.String()
+	for i := range out.PartyTaxScheme {
+		if id := out.PartyTaxScheme[i].CompanyID; id != nil {
+			id.Value = strings.TrimPrefix(id.Value, prefix)
+		}
 	}
-	return importInvoice(in, inv)
 }
 
-// importParty describes ZATCA identities by their type, without an ISO scheme
-// extension. They are the last identities parsed.
-func importParty(in *goblubl.Party, out *org.Party) {
-	ids := make([]*goblubl.IDType, 0, len(in.PartyIdentification))
-	for _, pi := range in.PartyIdentification {
-		if pi.ID != nil {
-			ids = append(ids, pi.ID)
-		}
-	}
-	parsed := out.Identities[len(out.Identities)-len(ids):]
-	for i, id := range ids {
-		if id.SchemeID != nil {
-			parsed[i].Type = cbc.Code(*id.SchemeID)
-			parsed[i].Ext = tax.Extensions{}
-		}
-	}
+// exportAddress states the address the way ZATCA reads it: the building number
+// on its own (BT-KSA-08) and the district in CitySubdivisionName (BT-KSA-09),
+// where EN 16931 has only a second street line.
+func exportAddress(a *org.Address, out *goblubl.PostalAddress) {
+	l := a.LineTwo()
+	out.CitySubdivisionName = &l
+	out.AdditionalStreetName = nil
+	out.BuildingNumber = &a.Number
 }
 
 func exportInvoice(inv *bill.Invoice, out *goblubl.Invoice) error {
 	// ZATCA treats all documents as invoices.
 	if out.CreditNoteTypeCode != nil {
-		creditNoteAsInvoice(inv, out)
+		creditNoteAsInvoice(out)
 	}
 
 	out.SchemaLocation = ""
@@ -92,61 +86,77 @@ func exportInvoice(inv *bill.Invoice, out *goblubl.Invoice) error {
 	invType := inv.Tax.GetExt(zatca.ExtKeyInvoiceType).String()
 	out.InvoiceTypeCode.Name = &invType
 
-	// BR-KSA-EN16931-09: the tax total is repeated in the accounting
-	// currency even when it matches the document currency.
-	if inv.Totals != nil && (taxCurrency == "" || inv.Currency == taxCurrency) {
-		out.TaxTotal = append(out.TaxTotal, goblubl.TaxTotal{
-			TaxAmount: goblubl.NewAmount(inv.Totals.Tax, inv.Currency.String()),
-		})
-	}
-
-	// Line VAT amount (KSA-11) is mandatory for tax invoices and the
-	// associated credit and debit notes.
-	for i, l := range inv.Lines {
-		if l.Total == nil || len(l.Taxes) == 0 || l.Taxes[0].Percent == nil {
-			continue
-		}
-		ccy := l.Item.Currency.String()
-		if ccy == "" {
-			ccy = inv.Currency.String()
-		}
-		taxAmount := l.Taxes[0].Percent.Of(*l.Total)
-		rounding := goblubl.NewAmount(l.Total.Add(taxAmount), ccy)
-		out.InvoiceLines[i].TaxTotal = []goblubl.TaxTotal{
-			{
-				TaxAmount:      goblubl.NewAmount(taxAmount, ccy),
-				RoundingAmount: &rounding,
-			},
-		}
-	}
-
-	// BR-KSA-17: debit and credit notes must contain the reason they were
-	// issued.
-	if inv.Preceding != nil && inv.Payment != nil && inv.Payment.Instructions != nil && len(out.PaymentMeans) > 0 {
-		for _, ref := range inv.Preceding {
-			out.PaymentMeans[0].InstructionNote = append(out.PaymentMeans[0].InstructionNote, ref.Reason)
-		}
-	}
-
-	// BT-14: the sales order reference does not apply.
-	if o := inv.Ordering; o != nil && len(o.Sales) > 0 && out.OrderReference != nil {
-		out.OrderReference.SalesOrderID = ""
-		if len(o.Purchases) == 0 && out.BuyerReference != "" {
-			out.OrderReference = nil
-		}
-	}
+	exportTotals(inv, out, taxCurrency.String())
+	exportLines(inv, out)
+	exportPayment(inv, out)
+	exportOrdering(inv, out)
 
 	if d := inv.Delivery; d != nil && d.Receiver != nil && len(d.Receiver.Addresses) > 0 && len(out.Delivery) > 0 {
 		if loc := out.Delivery[0].DeliveryLocation; loc != nil && loc.Address != nil {
-			convertAddress(d.Receiver.Addresses[0], loc.Address)
+			exportAddress(d.Receiver.Addresses[0], loc.Address)
 		}
 	}
 	return nil
 }
 
+// exportTotals repeats the tax total in the VAT accounting currency, which
+// BR-KSA-EN16931-09 requires beside the one carrying the breakdown. A document
+// billed in another currency already states it, converted, as BT-111.
+//
+// The document totals themselves are left as GOBL calculated them. GOBL derives
+// the VAT by applying the rate to the summed base, so it can sit a cent away
+// from the sum of the per-line amounts (KSA-11) the lines state; no ZATCA rule
+// compares the two, and restating the document would make the XML disagree with
+// the GOBL envelope every other rendering of the invoice is built from.
+func exportTotals(inv *bill.Invoice, out *goblubl.Invoice, taxCurrency string) {
+	if inv.Totals == nil || len(out.TaxTotal) == 0 {
+		return
+	}
+	if taxCurrency != "" && inv.Currency.String() != taxCurrency {
+		return
+	}
+	out.TaxTotal = append(out.TaxTotal, goblubl.TaxTotal{
+		TaxAmount: goblubl.NewAmount(inv.Totals.Tax, inv.Currency.String()),
+	})
+}
+
+// exportPayment moves the payment details into their ZATCA positions.
+func exportPayment(inv *bill.Invoice, out *goblubl.Invoice) {
+	if len(out.PaymentMeans) == 0 {
+		return
+	}
+	pm := &out.PaymentMeans[0]
+
+	// A credit note converts as a UBL Invoice here, which states the due date
+	// at the top (BT-9) rather than on the payment means as a CreditNote must.
+	if pm.PaymentDueDate != nil {
+		out.DueDate = *pm.PaymentDueDate
+		pm.PaymentDueDate = nil
+	}
+
+	// BR-KSA-17: debit and credit notes must contain the reason they were
+	// issued.
+	for _, ref := range inv.Preceding {
+		pm.InstructionNote = append(pm.InstructionNote, ref.Reason)
+	}
+}
+
+// exportOrdering drops the sales order reference (BT-14), which ZATCA has no
+// field for.
+func exportOrdering(inv *bill.Invoice, out *goblubl.Invoice) {
+	if out.OrderReference == nil {
+		return
+	}
+	out.OrderReference.SalesOrderID = ""
+	o := inv.Ordering
+	if (o == nil || len(o.Purchases) == 0) && out.BuyerReference != "" {
+		out.OrderReference = nil
+	}
+}
+
 // creditNoteAsInvoice restores the invoice structure that the base
 // conversion replaced for a credit note.
-func creditNoteAsInvoice(inv *bill.Invoice, out *goblubl.Invoice) {
+func creditNoteAsInvoice(out *goblubl.Invoice) {
 	out.XMLName = xml.Name{Local: "Invoice"}
 	out.UBLNamespace = goblubl.NamespaceUBLInvoice
 	out.InvoiceTypeCode = out.CreditNoteTypeCode
@@ -159,26 +169,42 @@ func creditNoteAsInvoice(inv *bill.Invoice, out *goblubl.Invoice) {
 		l.InvoicedQuantity = l.CreditedQuantity
 		l.CreditedQuantity = nil
 	}
-
-	// Credit notes carry the due date in the payment means.
-	if len(out.PaymentMeans) > 0 {
-		out.PaymentMeans[0].PaymentDueDate = nil
-	}
-	if p := inv.Payment; p != nil && p.Terms != nil && len(p.Terms.DueDates) > 0 {
-		out.DueDate = goblubl.FormatDate(*p.Terms.DueDates[0].Date)
-	}
 }
 
-func convertAddress(a *org.Address, out *goblubl.PostalAddress) {
-	l := a.LineTwo()
-	out.CitySubdivisionName = &l
-	out.AdditionalStreetName = nil
-	out.BuildingNumber = &a.Number
+// importZATCA applies the ZATCA rules to an imported invoice.
+func importZATCA(_ *goblubl.Format, doc goblubl.Document, env *gobl.Envelope) error {
+	inv, in, ok := invoices(env, doc)
+	if !ok {
+		return nil
+	}
+	for _, p := range goblubl.InvoiceParties(inv, in) {
+		importPartyIdentities(p.GOBL)
+	}
+	return importInvoice(in, inv)
+}
+
+// importPartyIdentities restores the ZATCA identity types. A party identifier
+// is named by its own scheme here — CRN, MOM, MLS, SAG or OTH — where
+// EN 16931 expects an ISO 6523 code, so the base import files it as one.
+func importPartyIdentities(p *org.Party) {
+	for _, id := range p.Identities {
+		if id == nil || id.Scope != "" {
+			continue
+		}
+		scheme := id.Ext.Get(iso.ExtKeySchemeID)
+		if scheme == cbc.CodeEmpty {
+			continue
+		}
+		id.Type = scheme
+		id.Ext = id.Ext.Delete(iso.ExtKeySchemeID)
+	}
 }
 
 func importInvoice(in *goblubl.Invoice, out *bill.Invoice) error {
-	if tc := in.InvoiceTypeCode; tc != nil && tc.Name != nil {
-		out.Tax.Ext = out.Tax.Ext.Set(zatca.ExtKeyInvoiceType, cbc.Code(*tc.Name))
+	// The base import never reads cbc:UUID (BR-KSA-03), so without this GOBL
+	// mints a fresh one on every Calculate and the document loses its identity.
+	if u, err := uuid.Parse(in.UUID); err == nil {
+		out.UUID = u
 	}
 
 	typeCode := in.InvoiceTypeCode
@@ -186,9 +212,13 @@ func importInvoice(in *goblubl.Invoice, out *bill.Invoice) error {
 		typeCode = in.CreditNoteTypeCode
 	}
 	if typeCode != nil && typeCode.Name != nil {
-		out.Tags = tax.Tags{}
-		if tags := invoiceTypeTags(cbc.Code(*typeCode.Name)); len(tags) != 0 {
-			out.SetTags(tags...)
+		code := cbc.Code(*typeCode.Name)
+		out.Tax.Ext = out.Tax.Ext.Set(zatca.ExtKeyInvoiceType, code)
+		if tags := invoiceTypeTags(code); len(tags) != 0 {
+			// Merge rather than replace: the base import tags a document for
+			// bypass when it cannot reproduce the totals the sender declared,
+			// and replacing the list would drop that and recalculate them away.
+			out.SetTags(mergeTags(out.GetTags(), tags)...)
 		}
 	}
 
@@ -202,6 +232,17 @@ func importInvoice(in *goblubl.Invoice, out *bill.Invoice) error {
 		}
 	}
 	return nil
+}
+
+// mergeTags adds tags to the ones already on the document, keeping each once.
+func mergeTags(existing, add []cbc.Key) []cbc.Key {
+	out := append([]cbc.Key{}, existing...)
+	for _, tag := range add {
+		if !tag.In(out...) {
+			out = append(out, tag)
+		}
+	}
+	return out
 }
 
 // invoiceTypeTags maps the KSA-2 transaction type flags to their tags.
