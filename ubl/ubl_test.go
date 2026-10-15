@@ -110,6 +110,10 @@ func TestImportDocumentType(t *testing.T) {
 	// The totals bypass runs after the format's import, so a stated total
 	// that cannot be reproduced must keep the document type's tags.
 	t.Run("prepayment invoice with totals that cannot be reproduced", func(t *testing.T) {
+		// Until the gobl.ubl release with invopop/gobl.ubl#164, the bypass
+		// replaces every tag and such a 386 comes in as a valid 388.
+		t.Skip("needs invopop/gobl.ubl#164")
+
 		inv := importWithTypeCode(t, "zatca/standard-prepayment.xml",
 			`<cbc:PayableAmount currencyID="SAR">2070.00</cbc:PayableAmount>`,
 			`<cbc:PayableAmount currencyID="SAR">2071.00</cbc:PayableAmount>`)
