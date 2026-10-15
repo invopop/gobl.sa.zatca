@@ -8,10 +8,17 @@ import (
 	"strings"
 	"testing"
 
+	"fmt"
 	"github.com/invopop/gobl"
 	zatcaubl "github.com/invopop/gobl.sa.zatca/ubl"
 	ubl "github.com/invopop/gobl.ubl"
 	"github.com/invopop/gobl/bill"
+	"github.com/invopop/gobl/catalogues/cef"
+	"github.com/invopop/gobl/catalogues/untdid"
+	"github.com/invopop/gobl/cbc"
+	"github.com/invopop/gobl/num"
+	"github.com/invopop/gobl/org"
+	"github.com/invopop/gobl/tax"
 	"github.com/invopop/gobl/uuid"
 	"github.com/invopop/phorm"
 	"github.com/stretchr/testify/assert"
@@ -190,4 +197,67 @@ func parseXMLInvoice(t *testing.T, name string) *gobl.Envelope {
 	env, err := ubl.Import(inv)
 	require.NoError(t, err)
 	return env
+}
+
+// amt parses a decimal string into an amount, failing the test on bad input.
+func amt(t *testing.T, s string) num.Amount {
+	t.Helper()
+	a, err := num.AmountFromString(s)
+	require.NoError(t, err)
+	return a
+}
+
+// vatLine builds a line at the given price carrying the given VAT combo.
+func vatLine(t *testing.T, price string, combo *tax.Combo) *bill.Line {
+	t.Helper()
+	p := amt(t, price)
+	return &bill.Line{
+		Quantity: num.MakeAmount(1, 0),
+		Item:     &org.Item{Name: "Service", Price: &p},
+		Taxes:    tax.Set{combo},
+	}
+}
+
+func standardVAT(percent string) *tax.Combo {
+	p, _ := num.PercentageFromString(percent)
+	return &tax.Combo{Category: tax.CategoryVAT, Key: tax.KeyStandard, Percent: &p}
+}
+
+// untaxedVAT builds a combo for a category that carries no rate: zero-rated,
+// exempt, or outside the scope of VAT, each with the VATEX code ZATCA demands.
+func untaxedVAT(key cbc.Key, category, vatex cbc.Code) *tax.Combo {
+	return &tax.Combo{
+		Category: tax.CategoryVAT,
+		Key:      key,
+		Ext: tax.ExtensionsOf(cbc.CodeMap{
+			untdid.ExtKeyTaxCategory: category,
+			cef.ExtKeyVATEX:          vatex,
+		}),
+	}
+}
+
+// assertTwoDecimals checks the cap every ZATCA amount is held to (BR-KSA-DEC).
+func assertTwoDecimals(t *testing.T, value, format string, args ...any) {
+	t.Helper()
+	if i := strings.IndexByte(value, '.'); i >= 0 {
+		assert.LessOrEqual(t, len(value)-i-1, 2, fmt.Sprintf(format, args...)+": %q has more than two decimals", value)
+	}
+}
+
+// TestExamplesAreConverted checks that every shipped example is also a
+// conversion fixture. TestExamples checks the examples as GOBL and stops
+// there, so without this an example could ship that no ZATCA conversion or
+// schematron run ever sees.
+func TestExamplesAreConverted(t *testing.T) {
+	examples, err := filepath.Glob(filepath.Join("..", "examples", "out", "*.json"))
+	require.NoError(t, err)
+	require.NotEmpty(t, examples)
+
+	for _, src := range examples {
+		name := filepath.Base(src)
+		t.Run(name, func(t *testing.T) {
+			_, err := os.Stat(filepath.Join("testdata", "convert", "zatca", name))
+			assert.NoError(t, err, "example %s has no conversion fixture; copy it into testdata/convert/zatca", name)
+		})
+	}
 }

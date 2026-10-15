@@ -1,0 +1,107 @@
+# A simplified (B2C) tax invoice whose prices include VAT, built from a real
+# document: the line amounts are the ones whose net divides awkwardly, so the
+# per-line VAT (KSA-11) and the document total do not agree to the cent.
+$schema: "https://gobl.org/draft-0/bill/invoice"
+$addons: ["sa-zatca-v1"]
+uuid: "01a10c1f-2f1e-7b16-ba74-035e7f3fb728"
+issue_date: "2026-10-05"
+issue_time: "15:52:12"
+series: "TEST"
+code: "00002"
+regime: "SA"
+type: "standard"
+currency: "SAR"
+$tags:
+  - simplified
+
+tax:
+  prices_include: "VAT"
+
+supplier:
+  name: "Sample Payments Saudi LTD"
+  tax_id:
+    country: "SA"
+    code: "399999999900003"
+  identities:
+    - type: "CRN"
+      code: "4030123456"
+  addresses:
+    - street: "King Fahd Road"
+      street_extra: "Al Olaya"
+      num: "1234"
+      locality: "Riyadh"
+      code: "12643"
+      country: "SA"
+
+customer:
+  name: "Sample Consumer LLC"
+  identities:
+    - type: "CRN"
+      code: "1010567890"
+  addresses:
+    - street: "Northern Ring Br Rd"
+      street_extra: "Al Nakheel"
+      num: "4321"
+      locality: "Riyadh"
+      region: "Riyadh"
+      code: "13511"
+      country: "SA"
+
+lines:
+  - i: 1
+    quantity: "1"
+    item:
+      name: "Card payments: Online"
+      price: "1002.30"
+      unit: "piece"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 2
+    quantity: "1"
+    item:
+      name: "Card payments: Online"
+      price: "10.00"
+      unit: "piece"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 3
+    quantity: "1"
+    item:
+      name: "Card payments: Terminal"
+      price: "333.33"
+      unit: "piece"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 4
+    quantity: "1"
+    item:
+      name: "Processing fee"
+      price: "0.05"
+      unit: "piece"
+    taxes:
+      - cat: VAT
+        rate: standard
+  - i: 5
+    quantity: "1"
+    item:
+      name: "Monthly subscription"
+      price: "999.99"
+      unit: "piece"
+    taxes:
+      - cat: VAT
+        rate: standard
+
+delivery:
+  date: "2026-10-05"
+
+payment:
+  instructions:
+    key: "other"
+    ext:
+      untdid-payment-means: "42"
+  terms:
+    key: "instant"
+    notes: "Payment on receipt of invoice"
