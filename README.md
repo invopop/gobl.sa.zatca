@@ -34,8 +34,9 @@ invoice families:
 - **Standard tax invoices** (B2B/B2G) — sent for clearance before issuance.
 - **Simplified tax invoices** (B2C) — sent for reporting after issuance.
 
-The addon covers both, along with their associated credit and debit notes and
-the export, summary, nominal, third-party and self-billed variants.
+The addon covers both, along with their associated credit and debit notes,
+prepayment invoices, and the export, summary, nominal, third-party and
+self-billed variants.
 
 ## Layout
 
@@ -84,7 +85,8 @@ per VAT category and copies their description into the invoice tax notes
 
 ## Tags
 
-Set on a `bill.Invoice` to drive the scenario that populates the KSA-2 code:
+Set on a `bill.Invoice` to drive the scenarios that populate the KSA-2 code
+and the document type:
 
 | Tag | Meaning |
 | --- | --- |
@@ -94,6 +96,23 @@ Set on a `bill.Invoice` to drive the scenario that populates the KSA-2 code:
 | `export` | Export of goods (GOBL core `tax.TagExport`) |
 | `simplified` | Simplified tax invoice (GOBL core `tax.TagSimplified`) |
 | `self-billed` | Self-billed invoice (GOBL core `tax.TagSelfBilled`) |
+| `prepayment` | Prepayment invoice, document type `386` (GOBL core `tax.TagPrepayment`) |
+
+## Document types
+
+The invoice type and tags set the UNTDID document type (BT-3), of which ZATCA
+accepts four (BR-KSA-05):
+
+| Type | Tags | BT-3 |
+| --- | --- | --- |
+| `standard` | | `388` tax invoice |
+| `standard` | `prepayment` | `386` prepayment invoice |
+| `credit-note` | | `381` credit note |
+| `debit-note` | | `383` debit note |
+
+KSA-2 carries self-billing, so a self-billed invoice or credit note keeps its
+`388` or `381`. Imported UBL is read back the same way, and any other BT-3 is
+kept as stated for BR-KSA-05 to report.
 
 ## Validation
 
@@ -116,8 +135,8 @@ go test ./...
 ### Examples
 
 `examples/` holds sample documents covering standard, simplified, credit /
-debit notes, self-billed and foreign-currency invoices, with their expected
-JSON envelopes under `examples/out/`. They are verified via GOBL's shared
+debit notes, self-billed, prepayment and foreign-currency invoices, with their
+expected JSON envelopes under `examples/out/`. They are verified via GOBL's shared
 `pkg/examples` helpers. Regenerate the golden output after intentional
 changes with:
 
