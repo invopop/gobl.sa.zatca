@@ -23,7 +23,8 @@ var FormatZATCA = goblubl.Format{
 	Key:             KeyZATCA,
 	Name:            i18n.NewString("UBL ZATCA"),
 	Countries:       []l10n.Code{l10n.SA},
-	Schemas:         []schema.ID{schema.Lookup(bill.Invoice{})},
+	Import:          []schema.ID{schema.Lookup(bill.Invoice{})},
+	Export:          []schema.ID{schema.Lookup(bill.Invoice{})},
 	CustomizationID: "urn:cen.eu:en16931:2017#compliant#urn:zatca.gov.sa:e-invoicing:1.0",
 	ProfileID:       "reporting:1.0", // BT-23
 	Addons:          []cbc.Key{zatca.V1},
