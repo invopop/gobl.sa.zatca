@@ -1,16 +1,11 @@
 package ubl_test
 
 import (
-	"fmt"
-	"strings"
-	"testing"
-
 	"github.com/invopop/gobl"
 	zatcaubl "github.com/invopop/gobl.sa.zatca/ubl"
 	goblubl "github.com/invopop/gobl.ubl"
 	"github.com/invopop/gobl/bill"
 	"github.com/invopop/gobl/cal"
-	"github.com/invopop/gobl/catalogues/cef"
 	"github.com/invopop/gobl/catalogues/untdid"
 	"github.com/invopop/gobl/cbc"
 	"github.com/invopop/gobl/currency"
@@ -20,44 +15,8 @@ import (
 	"github.com/invopop/gobl/tax"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
-
-// amt parses a decimal string into an amount, failing the test on bad input.
-func amt(t *testing.T, s string) num.Amount {
-	t.Helper()
-	a, err := num.AmountFromString(s)
-	require.NoError(t, err)
-	return a
-}
-
-// vatLine builds a line at the given price carrying the given VAT combo.
-func vatLine(t *testing.T, price string, combo *tax.Combo) *bill.Line {
-	t.Helper()
-	p := amt(t, price)
-	return &bill.Line{
-		Quantity: num.MakeAmount(1, 0),
-		Item:     &org.Item{Name: "Service", Price: &p},
-		Taxes:    tax.Set{combo},
-	}
-}
-
-func standardVAT(percent string) *tax.Combo {
-	p, _ := num.PercentageFromString(percent)
-	return &tax.Combo{Category: tax.CategoryVAT, Key: tax.KeyStandard, Percent: &p}
-}
-
-// untaxedVAT builds a combo for a category that carries no rate: zero-rated,
-// exempt, or outside the scope of VAT, each with the VATEX code ZATCA demands.
-func untaxedVAT(key cbc.Key, category, vatex cbc.Code) *tax.Combo {
-	return &tax.Combo{
-		Category: tax.CategoryVAT,
-		Key:      key,
-		Ext: tax.ExtensionsOf(cbc.CodeMap{
-			untdid.ExtKeyTaxCategory: category,
-			cef.ExtKeyVATEX:          vatex,
-		}),
-	}
-}
 
 // invoiceSpec describes one shape of document to convert and check.
 type invoiceSpec struct {
@@ -222,14 +181,6 @@ func abs(a num.Amount) num.Amount {
 		return a.Invert()
 	}
 	return a
-}
-
-// assertTwoDecimals checks the cap every ZATCA amount is held to (BR-KSA-DEC).
-func assertTwoDecimals(t *testing.T, value, format string, args ...any) {
-	t.Helper()
-	if i := strings.IndexByte(value, '.'); i >= 0 {
-		assert.LessOrEqual(t, len(value)-i-1, 2, fmt.Sprintf(format, args...)+": %q has more than two decimals", value)
-	}
 }
 
 // TestDocumentInvariants converts a wide spread of document shapes and checks
