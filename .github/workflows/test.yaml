@@ -40,8 +40,8 @@ jobs:
 
       - name: Wait for phorm
         run: |
-          for i in $(seq 1 60); do
-            curl -sf http://localhost:8080/api/version >/dev/null && exit 0
+          for i in $(seq 1 120); do
+            curl -sf http://localhost:8080/ >/dev/null && exit 0
             sleep 2
           done
           echo "phorm did not become ready" >&2
