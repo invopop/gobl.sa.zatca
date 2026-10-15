@@ -101,14 +101,27 @@ func TestImportDocumentType(t *testing.T) {
 			inv := importWithTypeCode(t, tt.file, tt.from, `name="0100000">`+tt.code+`<`)
 
 			assert.Equal(t, bill.InvoiceTypeOther, inv.Type)
+			assert.Empty(t, inv.GetTags(), "the base import's BT-3 tags must go")
 			assert.Equal(t, cbc.Code(tt.code), inv.Tax.Ext.Get(untdid.ExtKeyDocumentType))
 			assert.ErrorContains(t, rules.Validate(inv), "BR-KSA-05")
 		})
 	}
+
+	// The totals bypass runs after the format's import, so a stated total
+	// that cannot be reproduced must keep the document type's tags.
+	t.Run("prepayment invoice with totals that cannot be reproduced", func(t *testing.T) {
+		inv := importWithTypeCode(t, "zatca/standard-prepayment.xml",
+			`<cbc:PayableAmount currencyID="SAR">2070.00</cbc:PayableAmount>`,
+			`<cbc:PayableAmount currencyID="SAR">2071.00</cbc:PayableAmount>`)
+
+		assert.Equal(t, []cbc.Key{tax.TagPrepayment, tax.TagBypass}, inv.GetTags())
+		assert.Equal(t, cbc.Code("386"), inv.Tax.Ext.Get(untdid.ExtKeyDocumentType))
+		assert.Equal(t, "2071.00", inv.Totals.Payable.String())
+	})
 }
 
-// importWithTypeCode imports a UBL example with its BT-3 element swapped,
-// unless from is empty.
+// importWithTypeCode imports a UBL example with one element swapped, unless
+// from is empty.
 func importWithTypeCode(t *testing.T, name, from, to string) *bill.Invoice {
 	t.Helper()
 	data, err := testLoadXML(name)

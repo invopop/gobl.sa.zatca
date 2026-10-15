@@ -75,28 +75,3 @@ func TestImportInvoiceCreditNoteTypeCode(t *testing.T) {
 	assert.Equal(t, bill.InvoiceTypeCreditNote, out.Type)
 	assert.Equal(t, []cbc.Key{tax.TagSelfBilled}, out.GetTags())
 }
-
-// TestImportDocumentTypeKeepsOtherTags replaces only the tags the base import
-// derived from BT-3: any other, such as bypass, stays on the invoice.
-func TestImportDocumentTypeKeepsOtherTags(t *testing.T) {
-	simplified := "0200000"
-	tests := []struct {
-		name string
-		code string
-		tags []cbc.Key
-		want []cbc.Key
-	}{
-		{"bypass kept", "388", []cbc.Key{tax.TagBypass}, []cbc.Key{tax.TagBypass, tax.TagSimplified}},
-		{"bypass kept on a prepayment", "386", []cbc.Key{tax.TagBypass}, []cbc.Key{tax.TagBypass, tax.TagPrepayment, tax.TagSimplified}},
-		{"base BT-3 tag replaced", "389", []cbc.Key{tax.TagSelfBilled}, []cbc.Key{tax.TagSimplified}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			out := &bill.Invoice{Tax: &bill.Tax{}}
-			out.SetTags(tt.tags...)
-			importDocumentType(&goblubl.IDType{Value: tt.code, Name: &simplified}, out)
-
-			assert.Equal(t, tt.want, out.GetTags())
-		})
-	}
-}

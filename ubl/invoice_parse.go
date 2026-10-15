@@ -1,6 +1,8 @@
 package ubl
 
 import (
+	"slices"
+
 	zatca "github.com/invopop/gobl.sa.zatca/addon"
 	goblubl "github.com/invopop/gobl.ubl"
 	"github.com/invopop/gobl/bill"
@@ -62,9 +64,11 @@ func documentTypeCode(in *goblubl.Invoice) *goblubl.IDType {
 }
 
 // importDocumentType sets the invoice type and tags from BT-3 and the KSA-2
-// flags, in place of the ones the base import derived from BT-3 alone. A code
-// ZATCA does not accept is kept as stated on an "other" invoice, so BR-KSA-05
-// reports it instead of the scenarios turning it into a 388 or a 381.
+// flags. The base import derives both from BT-3 alone, and nothing else tags
+// the invoice before a format's import funcs run, so they are replaced
+// outright. A code ZATCA does not accept is kept as stated on an "other"
+// invoice, so BR-KSA-05 reports it instead of the scenarios turning it into a
+// 388 or a 381.
 func importDocumentType(typeCode *goblubl.IDType, out *bill.Invoice) {
 	code := cbc.Code(typeCode.Value)
 	dt, ok := documentTypes[code]
@@ -73,34 +77,13 @@ func importDocumentType(typeCode *goblubl.IDType, out *bill.Invoice) {
 		out.Tax.Ext = out.Tax.Ext.Set(untdid.ExtKeyDocumentType, code)
 	}
 
-	// Merge rather than replace: only the tags the base import derived from
-	// BT-3 give way, so any other, such as bypass, is kept.
-	var tags []cbc.Key
-	for _, tag := range out.GetTags() {
-		if !tag.In(goblubl.InvoiceTagMap[typeCode.Value]...) {
-			tags = append(tags, tag)
-		}
-	}
-	tags = mergeTags(tags, dt.tags)
+	// A copy, as SetTags keeps the slice and the table is shared.
+	tags := slices.Clone(dt.tags)
 	if typeCode.Name != nil {
-		tags = mergeTags(tags, invoiceTypeTags(cbc.Code(*typeCode.Name)))
+		tags = append(tags, invoiceTypeTags(cbc.Code(*typeCode.Name))...)
 	}
 	out.Type = dt.typ
-	out.Tags = tax.Tags{}
-	if len(tags) != 0 {
-		out.SetTags(tags...)
-	}
-}
-
-// mergeTags adds tags to the ones already on the document, keeping each once.
-func mergeTags(existing, add []cbc.Key) []cbc.Key {
-	out := append([]cbc.Key{}, existing...)
-	for _, tag := range add {
-		if !tag.In(out...) {
-			out = append(out, tag)
-		}
-	}
-	return out
+	out.SetTags(tags...)
 }
 
 // invoiceTypeTags maps the KSA-2 transaction type flags to their tags.
