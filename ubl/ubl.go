@@ -28,8 +28,8 @@ var FormatZATCA = goblubl.Format{
 	ProfileID:       "reporting:1.0", // BT-23
 	Addons:          []cbc.Key{zatca.V1},
 	VESIDs: goblubl.VESIDMapping{
-		Invoice:    "sa.zatca:ubl-invoice:2.3.8",
-		CreditNote: "sa.zatca:ubl-invoice:2.3.8",
+		Invoice:    "sa.zatca:ubl-invoice:3.4.6",
+		CreditNote: "sa.zatca:ubl-invoice:3.4.6",
 	},
 	ExportFuncs: []goblubl.ExportFunc{exportZATCA},
 	ImportFuncs: []goblubl.ImportFunc{importZATCA},
