@@ -7,9 +7,14 @@ import (
 	"github.com/invopop/gobl/tax"
 )
 
-// scenarios overrides the EN 16931 UNTDID document type for standard invoices:
-// ZATCA requires "388" (tax invoice) where EN 16931 defaults to "380". Credit
-// and debit notes already map to ZATCA-accepted codes (381 / 383) in EN 16931.
+// scenarios restate the EN 16931 UNTDID document types that ZATCA does not
+// accept (BR-KSA-05 allows only 388, 386, 383 and 381). They run after the
+// EN 16931 scenarios, and the last match wins:
+//
+//   - a standard invoice is a 388 tax invoice, whatever its other tags, as
+//     KSA-2 carries self-billing and ZATCA has no partial or factored invoice;
+//   - a prepayment invoice is a 386, which the 388 would otherwise replace;
+//   - a credit note is a 381, whatever its other tags, for the same reasons.
 var scenarios = []*tax.ScenarioSet{
 	{
 		Schema: bill.ShortSchemaInvoice,
@@ -20,6 +25,25 @@ var scenarios = []*tax.ScenarioSet{
 				},
 				Ext: tax.ExtensionsOf(cbc.CodeMap{
 					untdid.ExtKeyDocumentType: "388",
+				}),
+			},
+			{
+				Types: []cbc.Key{
+					bill.InvoiceTypeStandard,
+				},
+				Tags: []cbc.Key{
+					tax.TagPrepayment,
+				},
+				Ext: tax.ExtensionsOf(cbc.CodeMap{
+					untdid.ExtKeyDocumentType: "386",
+				}),
+			},
+			{
+				Types: []cbc.Key{
+					bill.InvoiceTypeCreditNote,
+				},
+				Ext: tax.ExtensionsOf(cbc.CodeMap{
+					untdid.ExtKeyDocumentType: "381",
 				}),
 			},
 		},
