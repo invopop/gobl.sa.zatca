@@ -110,9 +110,10 @@ accepts four (BR-KSA-05):
 | `credit-note` | | `381` credit note |
 | `debit-note` | | `383` debit note |
 
-KSA-2 carries self-billing, so a self-billed invoice or credit note keeps its
-`388` or `381`. Imported UBL is read back the same way, and any other BT-3 is
-kept as stated for BR-KSA-05 to report.
+Other tags do not change the code: KSA-2 carries self-billing, and ZATCA has
+no partial or factored documents, so a self-billed or factored invoice or
+credit note keeps its `388` or `381`. Imported UBL is read back the same way,
+and any other BT-3 is kept as stated for BR-KSA-05 to report.
 
 ## Validation
 
